@@ -22,3 +22,99 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Python
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+
+venv/
+.venv/
+env/
+
+# Flask
+
+instance/
+.webassets-cache/
+
+# Environment Variables
+
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+
+*.log
+
+# VS Code
+
+.vscode/
+
+# JetBrains IDEs
+
+.idea/
+
+# OS Files
+
+.DS_Store
+Thumbs.db
+
+# Python Build Files
+
+build/
+dist/
+*.egg-info/
+
+# React / Node
+
+frontend/node_modules/
+frontend/build/
+
+# NPM Logs
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage
+
+coverage/
+.coverage
+
+# Database Dumps
+
+*.sql.gz
+*.bak
+
+# MySQL Local Files
+
+*.db
+
+# Temporary Files
+
+tmp/
+temp/
+*.tmp
+
+# React Environment Files
+
+frontend/.env
+frontend/.env.local
+
+# Uploads
+
+uploads/
+media/
+
+# Testing
+
+.pytest_cache/
+
+# Misc
+
+*.swp
+*.swo
