@@ -1,0 +1,82 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// Auth
+import AdminLoginPage from "./pages/AdminLoginPage";
+import LoginPage from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+
+// Protected route guard
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+
+// Admin dashboard pages
+import Dashboard from "./pages/Dashboard";
+import Customers from "./pages/Customers";
+import Bookings from "./pages/Bookings";
+import Bins from "./pages/Bins";
+import WasteTypes from "./pages/WasteTypes";
+import Promotions from "./pages/Promotions";
+import Reports from "./pages/Reports";
+
+// Public website pages
+import Home from "./pages/Home";
+import BookingWebsite from "./pages/BookingWebsite";
+import Commercial from "./pages/Commercial";
+import Contact from "./pages/Contact";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+
+        {/* ── Public website ── */}
+        <Route path="/"                element={<Home />} />
+        <Route path="/home"            element={<Home />} />
+        <Route path="/booking"         element={<BookingWebsite />} />
+        <Route path="/commercial"      element={<Commercial />} />
+        <Route path="/contact"         element={<Contact />} />
+        <Route path="/loginpage"       element={<LoginPage />} />
+        <Route path="/signup"          element={<SignUpPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        {/* ── Admin login (public) ── */}
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+
+        {/* ── Protected admin dashboard routes ── */}
+        {/* Every route below requires a valid admin token.         */}
+        {/* If not logged in, user is redirected to /admin/login.  */}
+
+        <Route path="/dashboard" element={
+          <ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>
+        } />
+
+        <Route path="/customers" element={
+          <ProtectedAdminRoute><Customers /></ProtectedAdminRoute>
+        } />
+
+        <Route path="/bookings" element={
+          <ProtectedAdminRoute><Bookings /></ProtectedAdminRoute>
+        } />
+
+        <Route path="/bins" element={
+          <ProtectedAdminRoute><Bins /></ProtectedAdminRoute>
+        } />
+
+        <Route path="/waste-types" element={
+          <ProtectedAdminRoute><WasteTypes /></ProtectedAdminRoute>
+        } />
+
+        <Route path="/promotions" element={
+          <ProtectedAdminRoute><Promotions /></ProtectedAdminRoute>
+        } />
+
+        <Route path="/reports" element={
+          <ProtectedAdminRoute><Reports /></ProtectedAdminRoute>
+        } />
+
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

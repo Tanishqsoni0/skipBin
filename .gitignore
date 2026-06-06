@@ -118,3 +118,5 @@ media/
 
 *.swp
 *.swo
+
+generate_admin_password.py

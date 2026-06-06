@@ -10,6 +10,7 @@ from routes.waste_routes import waste_bp
 from routes.promotion_routes import promotion_bp
 from routes.dashboard_routes import dashboard_bp
 from routes.auth_routes import auth_bp
+from routes.admin_auth_routes import admin_auth_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -28,6 +29,7 @@ app.register_blueprint(waste_bp)
 app.register_blueprint(promotion_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(admin_auth_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)

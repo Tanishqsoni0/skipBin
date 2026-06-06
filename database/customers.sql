@@ -19,3 +19,35 @@ CREATE TABLE customer_notes(
     FOREIGN KEY(customer_id)
     REFERENCES customers(customer_id)
 );
+
+-- Add password hash column (required for login)
+ALTER TABLE customers
+    ADD COLUMN password_hash VARCHAR(255) NOT NULL DEFAULT '' AFTER email;
+
+-- Add first and last name columns (sign up form sends these separately)
+ALTER TABLE customers
+    ADD COLUMN first_name VARCHAR(60) NOT NULL DEFAULT '' AFTER full_name,
+    ADD COLUMN last_name VARCHAR(60) NOT NULL DEFAULT '' AFTER first_name;
+
+-- Add account type: 'customer' or 'business'
+ALTER TABLE customers
+    ADD COLUMN account_type ENUM('customer', 'business') NOT NULL DEFAULT 'customer' AFTER password_hash;
+
+-- Add business name (only filled when account_type = 'business')
+ALTER TABLE customers
+    ADD COLUMN business_name VARCHAR(150) DEFAULT NULL AFTER account_type;
+
+-- Add updated_at timestamp
+ALTER TABLE customers
+    ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER created_at;
+
+-- Make email unique (needed for login by email)
+-- Note: skip this if some existing rows have duplicate/null emails
+ALTER TABLE customers
+    MODIFY COLUMN email VARCHAR(100) NOT NULL,
+    ADD UNIQUE INDEX idx_email (email);
+
+ALTER TABLE customers
+DROP COLUMN full_name;
+
+DESCRIBE customers;

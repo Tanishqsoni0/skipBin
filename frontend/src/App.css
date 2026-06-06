@@ -44,7 +44,7 @@ body{
   flex:1;
 }
 
-.navbar{
+/* .navbar{
   background:white;
   height:75px;
   padding:0 30px;
@@ -57,7 +57,7 @@ body{
 .nav-right{
   display:flex;
   gap:20px;
-}
+} */
 
 .page-content{
   padding:30px;
@@ -183,7 +183,233 @@ button{
   cursor:pointer;
 }
 
-.website-navbar{
+/* Navbar.css */
+
+.navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.navbar-logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: -0.3px;
+  padding: 0;
+}
+
+/* Nav links row */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-link {
+  background: none;
+  border: none;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.navbar-link:hover,
+.navbar-link.active {
+  color: #0f172a;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Auth links (Login | or | Sign Up) */
+.navbar-auth-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 8px;
+}
+
+.navbar-auth-sep {
+  color: #94a3b8;
+  font-size: 13px;
+  padding: 0 2px;
+}
+
+/* ── Logged-in user area ── */
+
+.navbar-user {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 8px;
+}
+
+.navbar-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.navbar-user-btn:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.navbar-user-avatar {
+  width: 28px;
+  height: 28px;
+  background-color: #f59e0b;
+  color: #0f172a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.navbar-user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.navbar-user-caret {
+  font-size: 9px;
+  color: #64748b;
+}
+
+/* Loyalty progress pill */
+.loyalty-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 20px;
+  padding: 4px 10px;
+  cursor: default;
+}
+
+.loyalty-pill-icon {
+  font-size: 13px;
+}
+
+.loyalty-pill-bar-wrap {
+  width: 48px;
+  height: 5px;
+  background-color: rgba(245, 158, 11, 0.2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.loyalty-pill-bar {
+  height: 100%;
+  background-color: #f59e0b;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.loyalty-pill-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+/* Dropdown */
+.navbar-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  min-width: 160px;
+  overflow: hidden;
+  z-index: 200;
+}
+
+.navbar-dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #334155;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.navbar-dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.navbar-dropdown-item.danger {
+  color: #dc2626;
+}
+
+.navbar-dropdown-item.danger:hover {
+  background-color: rgba(220, 38, 38, 0.06);
+}
+
+.navbar-dropdown-divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.07);
+  margin: 4px 0;
+}
+
+/* ── Error state in auth forms ── */
+.auth-error {
+  background-color: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 1rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .loyalty-pill {
+    display: none;
+  }
+
+  .navbar-inner {
+    padding: 0 1rem;
+  }
+}
+
+/* .website-navbar{
   height:80px;
   background:white;
   display:flex;
@@ -191,7 +417,7 @@ button{
   align-items:center;
   padding:0 60px;
   box-shadow:0 2px 20px rgba(0,0,0,.08);
-}
+} */
 
 .brand{
   font-size:28px;
@@ -199,7 +425,7 @@ button{
   color:#0f172a;
 }
 
-.nav-links{
+/* .nav-links{
   display:flex;
   gap:25px;
 }
@@ -209,6 +435,17 @@ button{
   color:#0f172a;
   font-weight:500;
 }
+
+.nav-links p{
+  text-decoration:none;
+  color:#0f172a;
+  font-weight:500;
+}
+
+.nav-links .loginsignup{
+  display:flex;
+  gap:10px;
+} */
 
 .bins-section{
   padding:80px;
