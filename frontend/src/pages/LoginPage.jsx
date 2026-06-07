@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
 
 export default function LoginPage({ onNavigate, onLoginSuccess }) {
@@ -19,8 +19,11 @@ export default function LoginPage({ onNavigate, onLoginSuccess }) {
     setLoading(false);
 
     if (result.success) {
-      onLoginSuccess?.(result.customer); // pass customer up to parent / navbar
-      navigate("/home");
+      onLoginSuccess?.(result.customer);
+      // Redirect back to the page they were trying to visit (e.g. /booking)
+      const redirectTo = sessionStorage.getItem("redirect_after_login") || "/";
+      sessionStorage.removeItem("redirect_after_login");
+      navigate(redirectTo, { replace: true });
     } else {
       setError(result.error);
     }
