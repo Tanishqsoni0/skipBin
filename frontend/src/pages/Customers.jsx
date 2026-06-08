@@ -2,18 +2,19 @@ import React, { useEffect, useState } from "react";
 
 import DashboardLayout from "../layouts/DashboardLayout";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 const Customers = () => {
 
   const [customers, setCustomers] = useState([]);
-
+  const [search,setSearch] = useState("");
   const [form, setForm] = useState({
     full_name: "",
     mobile: "",
     email: "",
     address: ""
   });
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchCustomers();
   }, []);
@@ -96,7 +97,22 @@ const Customers = () => {
       <h1 className="page-title">
         Customers
       </h1>
+      <div className="stat-card">
 
+  <h3>
+    Search Customer
+  </h3>
+
+  <br />
+
+  <input
+    type="text"
+    placeholder="Search Mobile Number"
+    value={search}
+    onChange={(e)=>setSearch(e.target.value)}
+  />
+
+</div>
       <div className="stat-card">
 
         <h3>
@@ -177,6 +193,10 @@ const Customers = () => {
 
               <th>Email</th>
 
+              <th>Bookings</th>
+
+              <th>Spend</th>
+
               <th>Actions</th>
 
             </tr>
@@ -185,50 +205,64 @@ const Customers = () => {
 
           <tbody>
 
-            {
-              customers.map(
-                (c) => (
+{
+  customers
+    .filter((c) =>
+      c.mobile
+        ?.toString()
+        .includes(search)
+    )
+    .map((c) => (
 
-                <tr
-                  key={c.customer_id}
-                >
+      <tr key={c.customer_id}>
 
-                  <td>
-                    {c.customer_id}
-                  </td>
+        <td>{c.customer_id}</td>
 
-                  <td>
-                    {c.full_name}
-                  </td>
+        <td>{c.full_name}</td>
 
-                  <td>
-                    {c.mobile}
-                  </td>
+        <td>{c.mobile}</td>
 
-                  <td>
-                    {c.email}
-                  </td>
+        <td>{c.email}</td>
 
-                  <td>
+        <td>{c.total_bookings}</td>
 
-                    <button
-                      onClick={() =>
-                        deleteCustomer(
-                          c.customer_id
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
+        <td>
+          $
+          {Number(
+            c.total_spend || 0
+          ).toFixed(2)}
+        </td>
 
-                  </td>
+        <td>
 
-                </tr>
+          <button
+  onClick={() =>
+    navigate(
+      `/customers/${c.customer_id}`
+    )
+  }
+>
+  Profile
+</button>
 
-              ))
+          <button
+            onClick={() =>
+              deleteCustomer(
+                c.customer_id
+              )
             }
+          >
+            Delete
+          </button>
 
-          </tbody>
+        </td>
+
+      </tr>
+
+    ))
+}
+
+</tbody>
 
         </table>
 

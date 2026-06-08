@@ -1,7 +1,64 @@
+import { useState } from "react";
 import WebsiteNavbar from "../components/WebsiteNavbar";
 import Footer from "../components/Footer";
+import api from "../services/api";
 
 const Contact = () => {
+
+  const [form,setForm] =
+  useState({
+    name:"",
+    email:"",
+    message:""
+  });
+
+  const handleChange = (e)=>{
+
+    setForm({
+
+      ...form,
+
+      [e.target.name]:
+      e.target.value
+
+    });
+
+  };
+
+  const handleSubmit =
+  async(e)=>{
+
+    e.preventDefault();
+
+    try{
+
+      const res =
+      await api.post(
+        "/contact",
+        form
+      );
+
+      alert(
+        res.data.message
+      );
+
+      setForm({
+        name:"",
+        email:"",
+        message:""
+      });
+
+    }catch(err){
+
+      alert(
+        "Failed to send message"
+      );
+
+      console.log(err);
+
+    }
+
+  };
 
   return (
 
@@ -13,9 +70,7 @@ const Contact = () => {
 
         <div className="contact-card">
 
-          <h1>
-            Contact Us
-          </h1>
+          <h1>Contact Us</h1>
 
           <br />
 
@@ -29,29 +84,51 @@ const Contact = () => {
 
           <br />
 
-          <input
-            type="text"
-            placeholder="Name"
-          />
+          <form
+          onSubmit={
+            handleSubmit
+          }
+          >
 
-          <br /><br />
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
 
-          <input
-            type="email"
-            placeholder="Email"
-          />
+            <br /><br />
 
-          <br /><br />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
 
-          <textarea
-            placeholder="Message"
-          />
+            <br /><br />
 
-          <br /><br />
+            <textarea
+              name="message"
+              placeholder="Message"
+              value={form.message}
+              onChange={handleChange}
+              required
+            />
 
-          <button>
-            Send Message
-          </button>
+            <br /><br />
+
+            <button
+            type="submit"
+            >
+              Send Message
+            </button>
+
+          </form>
 
         </div>
 

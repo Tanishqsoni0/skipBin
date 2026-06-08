@@ -14,4 +14,4 @@ def is_loyalty_eligible(customer_id):
 
     completed=result["total"]
 
-    return completed>0 and completed%6==0
+    return completed>0 and completed%7==6

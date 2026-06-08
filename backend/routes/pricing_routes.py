@@ -1,4 +1,7 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint
+from flask import request
+from flask import jsonify
+
 from services.pricing_service import calculate_price
 
 pricing_bp = Blueprint(
@@ -6,19 +9,18 @@ pricing_bp = Blueprint(
     __name__
 )
 
-@pricing_bp.route("/calculate-price",methods=["POST"])
+@pricing_bp.route(
+    "/calculate-price",
+    methods=["POST"]
+)
 def calculate():
 
     data = request.json
 
-    total = calculate_price(
-        data["bin_price"],
-        data["waste_charge"],
-        data["delivery_charge"],
-        data["extension_charge"],
-        data["discount"]
+    result = calculate_price(
+        int(data["bin_id"]),
+        int(data["waste_id"]),
+        int(data["hire_weeks"])
     )
 
-    return jsonify({
-        "total_price": total
-    })
+    return jsonify(result)

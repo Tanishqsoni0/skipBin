@@ -1,28 +1,64 @@
+from database.db import cursor
+
 def calculate_price(
-    bin_price,
-    waste_charge,
-    delivery_charge,
-    hire_weeks, 
-    discount
+    bin_id,
+    waste_id,
+    hire_weeks
 ):
-    
-    extension_charge = 0
 
-    if hire_weeks == 2:
-        extension_charge = 40
+    cursor.execute(
+        """
+        SELECT base_price
+        FROM bin_types
+        WHERE bin_id=%s
+        """,
+        (bin_id,)
+    )
 
-    elif hire_weeks == 3:
-        extension_charge = 80
+    bin_data = cursor.fetchone()
+
+    cursor.execute(
+        """
+        SELECT extra_charge
+        FROM waste_types
+        WHERE waste_id=%s
+        """,
+        (waste_id,)
+    )
+
+    waste_data = cursor.fetchone()
+
+    base_price = float(
+        bin_data["base_price"]
+    )
+
+    waste_charge = float(
+        waste_data["extra_charge"]
+    )
+
+    extension_fee = max(
+        0,
+        (hire_weeks - 1) * 40
+    )
 
     total = (
-        bin_price +
-        waste_charge +
-        delivery_charge +
-        extension_charge - 
-        discount
+        base_price
+        + waste_charge
+        + extension_fee
     )
 
     return {
-        "extension_charge": extension_charge,
-        "total_price": total
+
+        "base_price":
+        base_price,
+
+        "waste_charge":
+        waste_charge,
+
+        "extension_fee":
+        extension_fee,
+
+        "total":
+        total
+
     }

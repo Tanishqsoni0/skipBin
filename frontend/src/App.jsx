@@ -23,7 +23,8 @@ import Home from "./pages/Home";
 import BookingWebsite from "./pages/BookingWebsite";
 import Commercial from "./pages/Commercial";
 import Contact from "./pages/Contact";
-
+import MyBookings from "./pages/MyBookings";
+import CustomerProfile from "./pages/CustomerProfile";
 function App() {
   return (
     <BrowserRouter>
@@ -38,7 +39,8 @@ function App() {
         <Route path="/loginpage"       element={<LoginPage />} />
         <Route path="/signup"          element={<SignUpPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
+        <Route path="/my-bookings"     element={<MyBookings />} />
+        <Route path="/customers/:id" element={<ProtectedAdminRoute><CustomerProfile /></ProtectedAdminRoute>} />
         {/* ── Admin login (public) ── */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
 

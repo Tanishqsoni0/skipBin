@@ -1,14 +1,59 @@
 from flask import Blueprint, request, jsonify
-from database.db import conn, cursor
+from database.db import conn, cursor, ensure_connection
 
 customer_bp = Blueprint("customer", __name__)
 
 # Get all customers
 @customer_bp.route("/customers", methods=["GET"])
 def get_customers():
-    cursor.execute("SELECT * FROM customers")
-    customers = cursor.fetchall()
-    return jsonify(customers)
+
+    query = """
+    SELECT
+
+        c.customer_id,
+
+        CONCAT(
+            c.first_name,
+            ' ',
+            c.last_name
+        ) AS full_name,
+
+        c.mobile,
+
+        c.email,
+
+        c.address,
+
+        c.loyalty_count,
+
+        COUNT(
+            b.booking_id
+        ) AS total_bookings,
+
+        COALESCE(
+            SUM(
+                b.total_amount
+            ),
+            0
+        ) AS total_spend
+
+    FROM customers c
+
+    LEFT JOIN bookings b
+        ON c.customer_id = b.customer_id
+
+    GROUP BY
+        c.customer_id
+
+    ORDER BY
+        c.customer_id DESC
+    """
+
+    cursor.execute(query)
+
+    return jsonify(
+        cursor.fetchall()
+    )
 
 # Get customer by id
 @customer_bp.route("/customers/<int:id>", methods=["GET"])
@@ -31,25 +76,52 @@ def add_customer():
 
     data = request.json
 
-    query = """
-    INSERT INTO customers
-    (full_name,mobile,email,address)
-    VALUES(%s,%s,%s,%s)
-    """
+    full_name = data.get(
+        "full_name",
+        ""
+    ).strip()
 
-    values = (
-        data["full_name"],
-        data["mobile"],
-        data["email"],
-        data["address"]
+    parts = full_name.split()
+
+    first_name = (
+        parts[0]
+        if len(parts) > 0
+        else ""
     )
 
-    cursor.execute(query, values)
+    last_name = (
+        " ".join(parts[1:])
+        if len(parts) > 1
+        else ""
+    )
+
+    query = """
+    INSERT INTO customers(
+        first_name,
+        last_name,
+        mobile,
+        email,
+        password_hash
+    )
+    VALUES(%s,%s,%s,%s,%s)
+    """
+
+    cursor.execute(
+        query,
+        (
+            first_name,
+            last_name,
+            data["mobile"],
+            data["email"],
+            "temp123"
+        )
+    )
+
     conn.commit()
 
     return jsonify({
-        "message":"Customer created"
-    }),201
+        "message":"Customer added"
+    })
 
 @customer_bp.route("/customers/<int:id>", methods=["PUT"])
 def update_customer(id):
@@ -96,27 +168,26 @@ def delete_customer(id):
         "message":"Customer deleted"
     })
 
-@customer_bp.route("/customers/mobile/<mobile>")
-def search_mobile(mobile):
+@customer_bp.route(
+    "/customers/search/<mobile>",
+    methods=["GET"]
+)
+def search_customer(mobile):
+
+    query = """
+    SELECT *
+    FROM customers
+    WHERE mobile LIKE %s
+    """
 
     cursor.execute(
-        """
-        SELECT *
-        FROM customers
-        WHERE mobile=%s
-        """,
-        (mobile,)
+        query,
+        (f"%{mobile}%",)
     )
 
-    customer = cursor.fetchone()
-
-    if customer:
-        return jsonify(customer)
-
-    return jsonify({
-        "message":"Customer not found"
-    }),404
-
+    return jsonify(
+        cursor.fetchall()
+    )
 
 @customer_bp.route("/customers/<int:id>/history")
 def history(id):
@@ -157,4 +228,99 @@ def loyalty_progress(id):
         "completed":total,
         "progress":progress,
         "target":7
+    })
+
+@customer_bp.route(
+    "/customers/<int:id>/notes",
+    methods=["GET"]
+)
+def get_notes(id):
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM customer_notes
+        WHERE customer_id=%s
+        ORDER BY note_id DESC
+        """,
+        (id,)
+    )
+
+    return jsonify(
+        cursor.fetchall()
+    )
+
+@customer_bp.route(
+    "/customers/<int:id>/notes",
+    methods=["POST"]
+)
+def add_note(id):
+
+    data=request.json
+
+    cursor.execute(
+        """
+        INSERT INTO
+        customer_notes(
+            customer_id,
+            note
+        )
+        VALUES(%s,%s)
+        """,
+        (
+            id,
+            data["note"]
+        )
+    )
+
+    conn.commit()
+
+    return jsonify({
+        "message":"Note added"
+    })
+
+@customer_bp.route(
+    "/notes/<int:id>",
+    methods=["DELETE"]
+)
+def delete_note(id):
+
+    cursor.execute(
+        """
+        DELETE FROM customer_notes
+        WHERE note_id=%s
+        """,
+        (id,)
+    )
+
+    conn.commit()
+
+    return jsonify({
+        "message":"Deleted"
+    })
+
+@customer_bp.route(
+    "/notes/<int:id>",
+    methods=["PUT"]
+)
+def update_note(id):
+
+    data = request.json
+
+    cursor.execute(
+        """
+        UPDATE customer_notes
+        SET note=%s
+        WHERE note_id=%s
+        """,
+        (
+            data["note"],
+            id
+        )
+    )
+
+    conn.commit()
+
+    return jsonify({
+        "message":"Note updated"
     })

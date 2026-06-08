@@ -51,3 +51,4 @@ ALTER TABLE customers
 DROP COLUMN full_name;
 
 DESCRIBE customers;
+SHOW COLUMNS FROM customers;

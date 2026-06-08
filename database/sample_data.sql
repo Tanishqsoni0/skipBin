@@ -17,9 +17,10 @@ VALUES
 
 INSERT INTO distance_charges(min_km,max_km,charge)
 VALUES
-(0,10,20),
-(10,20,40),
-(20,30,60);
+(0,10,0),
+(10,20,25),
+(20,40,50),
+(40,9999,100);
 
 INSERT INTO customers(full_name,mobile,email,address)
 VALUES(

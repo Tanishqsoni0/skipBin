@@ -4,7 +4,7 @@ import WebsiteNavbar from "../components/WebsiteNavbar";
 import Footer from "../components/Footer";
 import api from "../services/api";
 import { isLoggedIn, fetchMe } from "../services/authService";
-
+import "../booking.css";
 const BookingWebsite = () => {
   const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ const BookingWebsite = () => {
   const [submitting, setSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState("");
   const [bookingError, setBookingError] = useState("");
-
+  const [collectionDate,setCollectionDate]=useState("");
   const [form, setForm] = useState({
     customer_name: "",
     mobile: "",
@@ -27,6 +27,50 @@ const BookingWebsite = () => {
     hire_weeks: 1,
   });
 
+const [pricing,setPricing]=useState({
+  base_price:0,
+  waste_charge:0,
+  extension_fee:0,
+  total:0
+});
+
+useEffect(() => {
+
+  if(
+    !form.bin_id ||
+    !form.waste_id
+  ) return;
+
+  const fetchPrice = async() => {
+
+    try{
+
+      const res = await api.post(
+        "/calculate-price",
+        {
+          bin_id:Number(form.bin_id),
+          waste_id:Number(form.waste_id),
+          hire_weeks:Number(form.hire_weeks)
+        }
+      );
+
+      setPricing(res.data);
+
+    }catch(err){
+
+      console.log(err);
+
+    }
+
+  };
+
+  fetchPrice();
+
+},[
+  form.bin_id,
+  form.waste_id,
+  form.hire_weeks
+]);
   // ── Step 1: Check login, redirect if not logged in ───────────────────────
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -67,6 +111,7 @@ const BookingWebsite = () => {
     }
   };
 
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "mobile" && !/^\d*$/.test(value)) return;
@@ -94,7 +139,9 @@ const BookingWebsite = () => {
       const res = await api.post("/bookings", payload);
 
       setBookingSuccess(
-        `Booking confirmed! 🎉 Your bin will be collected on ${res.data.collection_date}. Total: $${res.data.total_amount}`
+        `Booking confirmed!
+         Your bin will be collected on ${res.data.collection_date}. 
+         Total: $${res.data.total_amount}`
       );
 
       // Reset only the fields the customer filled in
@@ -135,159 +182,266 @@ const BookingWebsite = () => {
   }
 
   return (
-    <>
-      <WebsiteNavbar />
+  <>
+    <WebsiteNavbar />
 
-      <div className="booking-page">
-        <div className="booking-card">
-          <h1>Book A Skip Bin</h1>
+    <div className="booking-page">
 
-          <br />
+      <div className="booking-wrapper">
 
-          {/* Loyalty progress banner */}
-          {customer && (
-            <div className="booking-loyalty-banner">
-              🎁 You have hired <strong>{customer.loyalty_count}</strong> bin
-              {customer.loyalty_count !== 1 ? "s" : ""} —{" "}
-              <strong>{7 - (customer.loyalty_count % 7)}</strong> more until
-              your next free hire!
-            </div>
-          )}
+        {/* LEFT SIDE */}
 
-          {/* Success message */}
-          {bookingSuccess && (
-            <div className="booking-success-msg">{bookingSuccess}</div>
-          )}
+       <div className="booking-card">
 
-          {/* Error message */}
-          {bookingError && (
-            <div className="booking-error-msg">⚠️ {bookingError}</div>
-          )}
+  <h1>
+    Book Your Skip Bin
+  </h1>
 
-          <form onSubmit={submitBooking}>
+  <p className="booking-subtitle">
+    Fast Delivery • Transparent Pricing • Professional Service
+  </p>
 
-            {/* ── Pre-filled read-only fields ── */}
-            <div className="prefilled-field">
-              <label>Full Name</label>
-              <input
-                type="text"
-                name="customer_name"
-                value={form.customer_name}
-                readOnly
-                className="input-readonly"
-              />
-            </div>
+  {bookingSuccess && (
+    <div className="booking-success-msg">
+      {bookingSuccess}
+    </div>
+  )}
 
-            <br />
+  {bookingError && (
+    <div className="booking-error-msg">
+      {bookingError}
+    </div>
+  )}
 
-            <div className="prefilled-field">
-              <label>Mobile</label>
-              <input
-                type="tel"
-                name="mobile"
-                value={form.mobile}
-                readOnly
-                className="input-readonly"
-              />
-            </div>
+<form
+  id="bookingForm"
+  onSubmit={submitBooking}
+>
+    <div className="bin-selection">
 
-            <br />
+      <h3>
+        Choose Bin Size
+      </h3>
 
-            <div className="prefilled-field">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                readOnly
-                className="input-readonly"
-              />
-            </div>
+      <div className="bin-grid">
 
-            <br />
+        {bins.map(bin => (
 
-            {/* ── Fields the customer fills in ── */}
-            <textarea
-              name="delivery_address"
-              placeholder="Delivery Address"
-              value={form.delivery_address}
-              onChange={handleChange}
-              required
-            />
+          <div
+            key={bin.bin_id}
+            className={
+              String(form.bin_id) === String(bin.bin_id)
+              ? "bin-option active"
+              : "bin-option"
+            }
+            onClick={() =>
+              setForm({
+                ...form,
+                bin_id: bin.bin_id
+              })
+            }
+          >
 
-            <br />
-            <br />
+            <h2>
+              {bin.size}
+            </h2>
 
-            <select
-              name="bin_id"
-              value={form.bin_id}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Bin</option>
-              {bins.map((bin) => (
-                <option key={bin.bin_id} value={bin.bin_id}>
-                  {bin.size}
-                </option>
-              ))}
-            </select>
+            <p>
+              Skip Bin
+            </p>
 
-            <br />
-            <br />
+          </div>
 
-            <select
-              name="waste_id"
-              value={form.waste_id}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Waste Type</option>
-              {wasteTypes.map((waste) => (
-                <option key={waste.waste_id} value={waste.waste_id}>
-                  {waste.waste_name}
-                </option>
-              ))}
-            </select>
+        ))}
 
-            <br />
-            <br />
-
-            <input
-              type="date"
-              name="delivery_date"
-              value={form.delivery_date}
-              onChange={handleChange}
-              min={new Date().toISOString().split("T")[0]}
-              required
-            />
-
-            <br />
-            <br />
-
-            <input
-              type="number"
-              name="hire_weeks"
-              min="1"
-              max="3"
-              value={form.hire_weeks}
-              onChange={handleChange}
-              required
-            />
-
-            <br />
-            <br />
-
-            <button type="submit" disabled={submitting}>
-              {submitting ? "Submitting..." : "Book Bin"}
-            </button>
-
-          </form>
-        </div>
       </div>
 
-      <Footer />
-    </>
-  );
+    </div>
+
+    <div className="waste-section">
+
+      <h3>
+        Waste Type
+      </h3>
+
+      <div className="waste-grid">
+
+        {wasteTypes.map(waste => (
+
+          <div
+            key={waste.waste_id}
+            className={
+              String(form.waste_id) === String(waste.waste_id)
+              ? "waste-card active"
+              : "waste-card"
+            }
+            onClick={() =>
+              setForm({
+                ...form,
+                waste_id: waste.waste_id
+              })
+            }
+          >
+
+            {waste.waste_name}
+
+          </div>
+
+        ))}
+
+      </div>
+
+    </div>
+
+    <div className="delivery-card">
+
+      <h3>
+        Delivery Details
+      </h3>
+
+      <textarea
+        name="delivery_address"
+        placeholder="Enter Delivery Address"
+        value={form.delivery_address}
+        onChange={handleChange}
+        required
+      />
+
+      <br />
+      <br />
+      <h3> Delivery Date </h3>
+      <input
+        type="date"
+        name="delivery_date"
+        value={form.delivery_date}
+        onChange={handleChange}
+        min={
+          new Date()
+          .toISOString()
+          .split("T")[0]
+        }
+        required
+      />
+
+      <br />
+      <br />
+
+      <div className="duration-buttons">
+        <h3> Hire Duration </h3>
+        {[1,2,3].map(week => (
+
+          <button
+            key={week}
+            type="button"
+            className={
+              form.hire_weeks == week
+              ? "duration-btn active"
+              : "duration-btn"
+            }
+            onClick={() =>
+              setForm({
+                ...form,
+                hire_weeks: week
+              })
+            }
+          >
+            {week} Week
+          </button>
+
+        ))}
+
+      </div>
+
+    </div>
+
+  </form>
+
+</div>
+
+        {/* RIGHT SIDE */}
+
+        <div className="summary-card">
+
+  <h2>
+    ORDER SUMMARY
+  </h2>
+
+  <div className="summary-row">
+  <span>Bin Price</span>
+  <span>${pricing.base_price}</span>
+</div>
+
+<div className="summary-row">
+  <span>Waste Charge</span>
+  <span>${pricing.waste_charge}</span>
+</div>
+
+<div className="summary-row">
+  <span>Extra Week</span>
+  <span>${pricing.extension_fee}</span>
+</div>
+
+<div className="summary-row">
+  <span>Collection</span>
+  <span>{collectionDate || "-"}</span>
+</div>
+
+<div className="summary-total">
+  <h1>${pricing.total}</h1>
+</div>
+
+  <div className="summary-total">
+
+  </div>
+
+  <button
+    type="submit"
+    form="bookingForm"
+    className="book-btn"
+    disabled={submitting}
+  >
+    {
+      submitting
+      ? "Processing..."
+      : "COMPLETE BOOKING"
+    }
+  </button>
+
+  {customer && (
+
+    <div className="loyalty-card">
+
+      <h3>
+        🎁 Loyalty Rewards
+      </h3>
+
+      <p>
+        {customer.loyalty_count || 0} / 7 Hires
+      </p>
+
+      <div className="loyalty-progress">
+
+        <div
+          className="loyalty-fill"
+          style={{
+            width:
+            `${(customer.loyalty_count % 7)*14.28}%`
+          }}
+        />
+
+      </div>
+
+    </div>
+
+  )}
+
+</div>
+</div>
+</div>
+
+    <Footer />
+  </>
+);
 };
 
 export default BookingWebsite;

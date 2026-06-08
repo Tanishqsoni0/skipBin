@@ -104,7 +104,7 @@ export default function Navbar({ onNavigate, currentPage }) {
                   </button>
                   <button
                     className="navbar-dropdown-item"
-                    onClick={() => { setMenuOpen(false); onNavigate?.("bookings"); }}
+                    onClick={() => { setMenuOpen(false); navigate("/my-bookings"); }}
                   >
                     My Bookings
                   </button>

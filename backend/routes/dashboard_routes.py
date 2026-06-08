@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from database.db import cursor
+import database.db as db
 
 dashboard_bp = Blueprint(
     "dashboard",
@@ -8,23 +8,23 @@ dashboard_bp = Blueprint(
 
 @dashboard_bp.route("/dashboard")
 def dashboard():
-
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         "SELECT COUNT(*) AS total FROM customers"
     )
-    customers = cursor.fetchone()["total"]
+    customers = db.cursor.fetchone()["total"]
 
-    cursor.execute(
+    db.cursor.execute(
         "SELECT COUNT(*) AS total FROM bookings"
     )
-    bookings = cursor.fetchone()["total"]
+    bookings = db.cursor.fetchone()["total"]
 
-    cursor.execute("""
+    db.cursor.execute("""
         SELECT SUM(total_amount) AS revenue
         FROM bookings
     """)
     
-    revenue = cursor.fetchone()["revenue"] or 0.0
+    revenue = db.cursor.fetchone()["revenue"] or 0.0
 
     return jsonify({
         "customers": customers,
@@ -34,12 +34,16 @@ def dashboard():
 
 @dashboard_bp.route("/reports/top-customers")
 def top_customers():
-
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         """
         SELECT
         c.customer_id,
-        c.full_name,
+        CONCAT(
+    c.first_name,
+    ' ',
+    c.last_name
+) AS full_name,
         COUNT(*) total_bookings
 
         FROM bookings b
@@ -55,17 +59,21 @@ def top_customers():
     )
 
     return jsonify(
-        cursor.fetchall()
+        db.cursor.fetchall()
     )
 
 @dashboard_bp.route("/reports/customer-value")
 def customer_value():
-
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         """
         SELECT
 
-        c.full_name,
+        CONCAT(
+    c.first_name,
+    ' ',
+    c.last_name
+) AS full_name,
 
         SUM(
         b.total_amount
@@ -83,13 +91,13 @@ def customer_value():
     )
 
     return jsonify(
-        cursor.fetchall()
+        db.cursor.fetchall()
     )
 
 @dashboard_bp.route("/reports/loyalty")
 def loyalty_report():
-
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         """
         SELECT COUNT(*)
         total_rewards
@@ -99,5 +107,195 @@ def loyalty_report():
     )
 
     return jsonify(
-        cursor.fetchone()
+        db.cursor.fetchone()
+    )
+
+@dashboard_bp.route("/dashboard/new-bookings")
+def new_bookings():
+    db.ensure_connection()
+    db.cursor.execute("""
+    SELECT
+
+        b.booking_id,
+
+        CONCAT(
+            c.first_name,
+            ' ',
+            c.last_name
+        ) customer_name,
+
+        bt.size,
+
+        b.created_at
+
+    FROM bookings b
+
+    JOIN customers c
+    ON c.customer_id=b.customer_id
+
+    JOIN bin_types bt
+    ON bt.bin_id=b.bin_id
+
+    WHERE b.status='NEW'
+
+    ORDER BY b.booking_id DESC
+
+    LIMIT 5
+    """)
+
+    return jsonify(
+        db.cursor.fetchall()
+    )
+
+@dashboard_bp.route("/dashboard/upcoming-deliveries")
+def upcoming_deliveries():
+    db.ensure_connection()
+
+    db.cursor.execute("""
+    SELECT
+
+        b.booking_id,
+
+        CONCAT(
+            c.first_name,
+            ' ',
+            c.last_name
+        ) customer_name,
+
+        bt.size,
+
+        b.delivery_date
+
+    FROM bookings b
+
+    JOIN customers c
+    ON c.customer_id=b.customer_id
+
+    JOIN bin_types bt
+    ON bt.bin_id=b.bin_id
+
+    WHERE b.delivery_date >= CURDATE()
+
+    ORDER BY b.delivery_date
+
+    LIMIT 5
+    """)
+
+    return jsonify(
+        db.cursor.fetchall()
+    )
+
+@dashboard_bp.route("/dashboard/active-hires")
+def active_hires():
+    db.ensure_connection()
+    db.cursor.execute("""
+    SELECT
+
+        b.booking_id,
+
+        CONCAT(
+            c.first_name,
+            ' ',
+            c.last_name
+        ) customer_name,
+
+        bt.size,
+
+        b.collection_date
+
+    FROM bookings b
+
+    JOIN customers c
+    ON c.customer_id=b.customer_id
+
+    JOIN bin_types bt
+    ON bt.bin_id=b.bin_id
+
+    WHERE b.status='ACTIVE'
+
+    ORDER BY b.collection_date
+
+    LIMIT 5
+    """)
+
+    return jsonify(
+        db.cursor.fetchall()
+    )
+
+
+@dashboard_bp.route("/dashboard/upcoming-collections")
+def upcoming_collections():
+    db.ensure_connection()
+
+    db.cursor.execute("""
+    SELECT
+
+        b.booking_id,
+
+        CONCAT(
+            c.first_name,
+            ' ',
+            c.last_name
+        ) customer_name,
+
+        bt.size,
+
+        b.collection_date
+
+    FROM bookings b
+
+    JOIN customers c
+    ON c.customer_id=b.customer_id
+
+    JOIN bin_types bt
+    ON bt.bin_id=b.bin_id
+
+    WHERE b.collection_date >= CURDATE()
+
+    ORDER BY b.collection_date
+
+    LIMIT 5
+    """)
+
+    return jsonify(
+        db.cursor.fetchall()
+    )
+
+
+@dashboard_bp.route("/dashboard/completed-jobs")
+def completed_jobs():
+    db.ensure_connection()
+
+    db.cursor.execute("""
+    SELECT
+
+        b.booking_id,
+
+        CONCAT(
+            c.first_name,
+            ' ',
+            c.last_name
+        ) customer_name,
+
+        bt.size,
+
+        b.total_amount
+
+    FROM bookings b
+
+    JOIN customers c
+    ON c.customer_id=b.customer_id
+
+    JOIN bin_types bt
+    ON bt.bin_id=b.bin_id
+
+    WHERE b.status='COMPLETED'
+
+    ORDER BY b.booking_id DESC
+
+    LIMIT 5
+    """)
+
+    return jsonify(
+        db.cursor.fetchall()
     )

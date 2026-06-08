@@ -1,87 +1,98 @@
-from flask import Blueprint, request, jsonify
-from database.db import conn, cursor
-from datetime import date, timedelta
-from services.date_service import calculate_collection_date
+from flask import Blueprint
+from flask import request
+from flask import jsonify
+
+from datetime import datetime
+from datetime import timedelta
+
+import database.db as db
+
 from services.pricing_service import calculate_price
-from services.loyalty_service import is_loyalty_eligible
 
-booking_bp = Blueprint("booking", __name__)
+booking_bp = Blueprint(
+    "booking",
+    __name__
+)
 
-
-@booking_bp.route("/bookings", methods=["GET"])
+@booking_bp.route(
+    "/bookings",
+    methods=["GET"]
+)
 def get_bookings():
 
     query = """
     SELECT
         b.booking_id,
-        CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+        CONCAT(
+    c.first_name,
+    ' ',
+    c.last_name
+) AS full_name,
         bt.size,
         wt.waste_name,
         b.delivery_date,
         b.collection_date,
-        b.total_amount,
-        b.status
+        b.status,
+        b.total_amount
     FROM bookings b
-    JOIN customers c ON b.customer_id = c.customer_id
-    JOIN bin_types bt ON b.bin_id = bt.bin_id
-    JOIN waste_types wt ON b.waste_id = wt.waste_id
+    JOIN customers c
+        ON b.customer_id=c.customer_id
+    JOIN bin_types bt
+        ON b.bin_id=bt.bin_id
+    JOIN waste_types wt
+        ON b.waste_id=wt.waste_id
+    ORDER BY b.booking_id DESC
     """
 
-    cursor.execute(query)
-    bookings = cursor.fetchall()
-    return jsonify(bookings)
+    db.cursor.execute(query)
+
+    return jsonify(
+        db.cursor.fetchall()
+    )
 
 
-@booking_bp.route("/bookings", methods=["POST"])
+@booking_bp.route(
+    "/bookings",
+    methods=["POST"]
+)
 def create_booking():
 
     data = request.json
 
-    customer_id      = data["customer_id"]
-    bin_id           = data["bin_id"]
-    waste_id         = data["waste_id"]
+    customer_id = data["customer_id"]
+
+    bin_id = data["bin_id"]
+
+    waste_id = data["waste_id"]
+
     delivery_address = data["delivery_address"]
-    delivery_date    = data["delivery_date"]
-    hire_weeks       = data["hire_weeks"]
-    distance_km      = data.get("distance_km", 0)
 
-    # ── Get bin price ────────────────────────────────────────────────────────
-    cursor.execute(
-        "SELECT base_price FROM bin_types WHERE bin_id = %s",
-        (bin_id,)
+    delivery_date = data["delivery_date"]
+
+    hire_weeks = int(
+        data["hire_weeks"]
     )
-    bin_data  = cursor.fetchone()
-    bin_price = float(bin_data["base_price"])
 
-    # ── Get waste charge ─────────────────────────────────────────────────────
-    cursor.execute(
-        "SELECT extra_charge FROM waste_types WHERE waste_id = %s",
-        (waste_id,)
+    pricing = calculate_price(
+        bin_id,
+        waste_id,
+        hire_weeks
     )
-    waste_data   = cursor.fetchone()
-    waste_charge = float(waste_data["extra_charge"])
 
-    # ── Get delivery charge ──────────────────────────────────────────────────
-    from services.distance_service import get_delivery_charge
-    delivery_charge = get_delivery_charge(distance_km)
+    collection_date = (
+        datetime.strptime(
+            delivery_date,
+            "%Y-%m-%d"
+        )
+        +
+        timedelta(
+            weeks=hire_weeks
+        )
+    ).strftime("%Y-%m-%d")
 
-    # ── Discount (0 for now — hook up promotions later) ──────────────────────
-    discount = 0
-
-    # ── Calculate total price ────────────────────────────────────────────────
-    pricing      = calculate_price(bin_price, waste_charge, delivery_charge, hire_weeks, discount)
-    total_amount = pricing["total_price"]
-
-    # ── Calculate collection date ────────────────────────────────────────────
-    collection_date = calculate_collection_date(delivery_date, hire_weeks)
-
-    # ── Apply loyalty discount (free bin hire) if eligible ───────────────────
-    if is_loyalty_eligible(customer_id):
-        total_amount = total_amount - bin_price
-
-    # ── Save booking to database ─────────────────────────────────────────────
     query = """
-    INSERT INTO bookings (
+    INSERT INTO bookings
+    (
         customer_id,
         bin_id,
         waste_id,
@@ -89,12 +100,18 @@ def create_booking():
         delivery_date,
         collection_date,
         hire_weeks,
+        status,
+        total_amount,
         delivery_charge,
         waste_charge,
-        discount_amount,
-        total_amount
+        discount_amount
     )
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    VALUES
+    (
+        %s,%s,%s,%s,%s,%s,%s,
+        'NEW',
+        %s,%s,%s,%s
+    )
     """
 
     values = (
@@ -105,76 +122,152 @@ def create_booking():
         delivery_date,
         collection_date,
         hire_weeks,
-        delivery_charge,
-        waste_charge,
-        discount,        # discount_amount
-        total_amount,
+        pricing["total"],
+        0,
+        pricing["waste_charge"],
+        0
     )
 
-    cursor.execute(query, values)
-    conn.commit()
+    db.cursor.execute(
+        query,
+        values
+    )
+
+    db.conn.commit()
 
     return jsonify({
-        "message": "Booking created",
-        "collection_date": collection_date,
-        "total_amount": total_amount,
+
+        "message":
+        "Booking Created",
+
+        "collection_date":
+        collection_date,
+
+        "total_amount":
+        pricing["total"]
+
     })
 
+@booking_bp.route("/calculate-price", methods=["POST"])
+def get_price():
 
-@booking_bp.route("/bookings/<int:id>/status", methods=["PUT"])
-def update_status(id):
+    data=request.json
 
-    data = request.json
-
-    cursor.execute(
-        "UPDATE bookings SET status = %s WHERE booking_id = %s",
-        (data["status"], id)
+    result=calculate_price(
+        int(data["bin_id"]),
+        int(data["waste_id"]),
+        int(data["hire_weeks"])
     )
-    conn.commit()
 
-    return jsonify({"message": "Status updated"})
+    return jsonify(result)
 
 
-@booking_bp.route("/bookings/<int:id>", methods=["GET"])
-def get_booking(id):
+@booking_bp.route(
+    "/my-bookings/<int:customer_id>",
+    methods=["GET"]
+)
+def my_bookings(customer_id):
 
-    cursor.execute(
-        "SELECT * FROM bookings WHERE booking_id = %s",
-        (id,)
+    query = """
+    SELECT
+        b.booking_id,
+        bt.size,
+        wt.waste_name,
+        b.delivery_date,
+        b.collection_date,
+        b.status,
+        b.total_amount
+    FROM bookings b
+    JOIN bin_types bt
+      ON b.bin_id = bt.bin_id
+    JOIN waste_types wt
+      ON b.waste_id = wt.waste_id
+    WHERE b.customer_id = %s
+    ORDER BY b.booking_id DESC
+    """
+
+    db.cursor.execute(
+        query,
+        (customer_id,)
     )
-    booking = cursor.fetchone()
-    return jsonify(booking)
+
+    return jsonify(
+        db.cursor.fetchall()
+    )
 
 
-@booking_bp.route("/collections/tomorrow", methods=["GET"])
+@booking_bp.route(
+    "/collections/tomorrow",
+    methods=["GET"]
+)
 def collections_tomorrow():
+    db.ensure_connection()
+    tomorrow = (
+        datetime.now().date()
+        + timedelta(days=1)
+    )
 
-    tomorrow = date.today() + timedelta(days=1)
+    query = """
+    SELECT
 
-    cursor.execute(
-        "SELECT * FROM bookings WHERE collection_date = %s",
+        b.booking_id,
+
+        CONCAT(
+            c.first_name,
+            ' ',
+            c.last_name
+        ) AS customer_name,
+
+        bt.size,
+
+        b.collection_date
+
+    FROM bookings b
+
+    JOIN customers c
+      ON b.customer_id=c.customer_id
+
+    JOIN bin_types bt
+      ON b.bin_id=bt.bin_id
+
+    WHERE
+      b.collection_date=%s
+
+    ORDER BY
+      b.collection_date
+    """
+
+    db.cursor.execute(
+        query,
         (tomorrow,)
     )
-    return jsonify(cursor.fetchall())
 
-
-@booking_bp.route("/deliveries/upcoming")
-def upcoming_deliveries():
-
-    cursor.execute(
-        """
-        SELECT * FROM bookings
-        WHERE status = 'CONFIRMED'
-        ORDER BY delivery_date
-        """
+    return jsonify(
+        db.cursor.fetchall()
     )
-    return jsonify(cursor.fetchall())
 
+@booking_bp.route(
+    "/bookings/<int:id>/status",
+    methods=["PUT"]
+)
+def update_booking_status(id):
 
-@booking_bp.route("/hires/active")
-def active_hires():
+    data=request.json
 
-    cursor.execute(
-        "SELECT * FROM bookings WHERE status = 'ACTIVE'"
+    db.cursor.execute(
+        """
+        UPDATE bookings
+        SET status=%s
+        WHERE booking_id=%s
+        """,
+        (
+            data["status"],
+            id
+        )
     )
-    return jsonify(cursor.fetchall())
+
+    db.conn.commit()
+
+    return jsonify({
+        "message":"Status Updated"
+    })

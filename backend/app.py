@@ -11,9 +11,19 @@ from routes.promotion_routes import promotion_bp
 from routes.dashboard_routes import dashboard_bp
 from routes.auth_routes import auth_bp
 from routes.admin_auth_routes import admin_auth_bp
-
+from routes.contact_routes import contact_bp
 app = Flask(__name__)
-CORS(app)
+CORS(
+    app,
+    resources={
+        r"/*":{
+            "origins":[
+                "http://localhost:3000",
+                "http://127.0.0.1:3000"
+            ]
+        }
+    }
+)
 app.config["JWT_SECRET_KEY"] = "skipbins_secret"
 jwt = JWTManager(app)
 @app.route("/")
@@ -30,6 +40,6 @@ app.register_blueprint(promotion_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_auth_bp)
-
+app.register_blueprint(contact_bp)
 if __name__ == "__main__":
     app.run(debug=True)
