@@ -6,3 +6,11 @@ CREATE TABLE distance_charges (
     max_km DECIMAL(5,2),
     charge DECIMAL(10,2)
 );  
+
+CREATE TABLE hire_pricing (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    extension_fee DECIMAL(10,2) NOT NULL
+);
+
+INSERT INTO hire_pricing(extension_fee)
+VALUES(40.00);

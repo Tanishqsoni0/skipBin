@@ -17,8 +17,9 @@ def dashboard():
     db.cursor.execute(
         "SELECT COUNT(*) AS total FROM bookings"
     )
-    bookings = db.cursor.fetchone()["total"]
+    row = db.cursor.fetchone()
 
+    bookings = row["total"] if row else 0
     db.cursor.execute("""
         SELECT SUM(total_amount) AS revenue
         FROM bookings
@@ -299,3 +300,125 @@ def completed_jobs():
     return jsonify(
         db.cursor.fetchall()
     )
+
+
+@dashboard_bp.route("/dashboard-data")
+def dashboard_data():
+
+    db.ensure_connection()
+
+    # Stats
+    db.cursor.execute(
+        "SELECT COUNT(*) total FROM customers"
+    )
+    customers = db.cursor.fetchone()["total"]
+
+    db.cursor.execute(
+        "SELECT COUNT(*) total FROM bookings"
+    )
+    bookings = db.cursor.fetchone()["total"]
+
+    db.cursor.execute(
+        "SELECT COALESCE(SUM(total_amount),0) revenue FROM bookings"
+    )
+    revenue = db.cursor.fetchone()["revenue"]
+
+    # New Bookings
+    db.cursor.execute("""
+    SELECT
+        b.booking_id,
+        CONCAT(c.first_name,' ',c.last_name) customer_name,
+        bt.size
+    FROM bookings b
+    JOIN customers c
+      ON c.customer_id=b.customer_id
+    JOIN bin_types bt
+      ON bt.bin_id=b.bin_id
+    WHERE b.status='NEW'
+    ORDER BY b.booking_id DESC
+    LIMIT 5
+    """)
+    new_bookings = db.cursor.fetchall()
+
+    # Deliveries
+    db.cursor.execute("""
+    SELECT
+        b.booking_id,
+        CONCAT(c.first_name,' ',c.last_name) customer_name,
+        bt.size,
+        b.delivery_date
+    FROM bookings b
+    JOIN customers c
+      ON c.customer_id=b.customer_id
+    JOIN bin_types bt
+      ON bt.bin_id=b.bin_id
+    WHERE b.delivery_date>=CURDATE()
+    ORDER BY b.delivery_date
+    LIMIT 5
+    """)
+    deliveries = db.cursor.fetchall()
+
+    # Active
+    db.cursor.execute("""
+    SELECT
+        b.booking_id,
+        CONCAT(c.first_name,' ',c.last_name) customer_name,
+        bt.size,
+        b.collection_date
+    FROM bookings b
+    JOIN customers c
+      ON c.customer_id=b.customer_id
+    JOIN bin_types bt
+      ON bt.bin_id=b.bin_id
+    WHERE b.status='ACTIVE'
+    LIMIT 5
+    """)
+    active_hires = db.cursor.fetchall()
+
+    # Collections
+    db.cursor.execute("""
+    SELECT
+        b.booking_id,
+        CONCAT(c.first_name,' ',c.last_name) customer_name,
+        bt.size,
+        b.collection_date
+    FROM bookings b
+    JOIN customers c
+      ON c.customer_id=b.customer_id
+    JOIN bin_types bt
+      ON bt.bin_id=b.bin_id
+    WHERE b.collection_date>=CURDATE()
+    LIMIT 5
+    """)
+    upcoming_collections = db.cursor.fetchall()
+
+    # Completed
+    db.cursor.execute("""
+    SELECT
+        b.booking_id,
+        CONCAT(c.first_name,' ',c.last_name) customer_name,
+        bt.size,
+        b.total_amount
+    FROM bookings b
+    JOIN customers c
+      ON c.customer_id=b.customer_id
+    JOIN bin_types bt
+      ON bt.bin_id=b.bin_id
+    WHERE b.status='COMPLETED'
+    ORDER BY b.booking_id DESC
+    LIMIT 5
+    """)
+    completed_jobs = db.cursor.fetchall()
+
+    return jsonify({
+        "stats":{
+            "customers":customers,
+            "bookings":bookings,
+            "revenue":revenue
+        },
+        "newBookings":new_bookings,
+        "deliveries":deliveries,
+        "activeHires":active_hires,
+        "upcomingCollections":upcoming_collections,
+        "completedJobs":completed_jobs
+    })

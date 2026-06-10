@@ -10,7 +10,6 @@ const Dashboard=()=>{
     bookings:0,
     revenue:0
   });
-const [collections,setCollections]=useState([]);
 const [newBookings,setNewBookings]=useState([]);
 const [deliveries,setDeliveries]=useState([]);
 const [activeHires,setActiveHires]=useState([]);
@@ -19,93 +18,49 @@ const [completedJobs,setCompletedJobs]=useState([]);
 
 useEffect(()=>{
 
-  fetchDashboard();
-
-  loadCollections();
-
-  loadNewBookings();
-
-  loadDeliveries();
-
-  loadActiveHires();
-
-  loadUpcomingCollections();
-
-  loadCompleted();
+  loadDashboard();
 
 },[]);
-const loadCollections=async()=>{
+
+const loadDashboard = async()=>{
 
   try{
 
-    const res=
+    const res =
     await api.get(
-      "/collections/tomorrow"
+      "/dashboard-data"
     );
 
-    setCollections(
-      res.data
+    setStats(
+      res.data.stats
     );
 
-  }
-  catch(err){
+    setNewBookings(
+      res.data.newBookings
+    );
+
+    setDeliveries(
+      res.data.deliveries
+    );
+
+    setActiveHires(
+      res.data.activeHires
+    );
+
+    setUpcomingCollections(
+      res.data.upcomingCollections
+    );
+
+    setCompletedJobs(
+      res.data.completedJobs
+    );
+
+  }catch(err){
 
     console.log(err);
 
   }
 
-};
-  const fetchDashboard=async()=>{
-
-    try{
-
-      const res=
-      await api.get("/dashboard");
-
-      setStats(res.data);
-
-    }
-    catch(err){
-
-      console.log(err);
-
-    }
-
-  };
-
-const loadNewBookings=async()=>{
-  const res=await api.get(
-    "/dashboard/new-bookings"
-  );
-  setNewBookings(res.data);
-};
-
-const loadDeliveries=async()=>{
-  const res=await api.get(
-    "/dashboard/upcoming-deliveries"
-  );
-  setDeliveries(res.data);
-};
-
-const loadActiveHires=async()=>{
-  const res=await api.get(
-    "/dashboard/active-hires"
-  );
-  setActiveHires(res.data);
-};
-
-const loadUpcomingCollections=async()=>{
-  const res=await api.get(
-    "/dashboard/upcoming-collections"
-  );
-  setUpcomingCollections(res.data);
-};
-
-const loadCompleted=async()=>{
-  const res=await api.get(
-    "/dashboard/completed-jobs"
-  );
-  setCompletedJobs(res.data);
 };
 
   return(

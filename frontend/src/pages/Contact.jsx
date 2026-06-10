@@ -122,7 +122,7 @@ const Contact = () => {
 
             <br /><br />
 
-            <button
+            <button className="edit-btn"
             type="submit"
             >
               Send Message

@@ -10,7 +10,7 @@ import api
 from "../services/api";
 
 const Bookings = () => {
-
+  const [customers,setCustomers] = useState([]);
   const [bookings,
   setBookings] =
   useState([]);
@@ -29,12 +29,28 @@ const Bookings = () => {
 
   });
 
+  const [editingId,setEditingId]=useState(null);
+
+const [editForm,setEditForm]=useState({
+  status:""
+});
+
+
   useEffect(() => {
-
     fetchBookings();
-
+    loadCustomers();
   }, []);
+  const loadCustomers = async() => {
 
+  const res = await api.get(
+    "/customers"
+  );
+
+  setCustomers(
+    res.data
+  );
+
+};
   const fetchBookings =
   async () => {
 
@@ -96,94 +112,113 @@ const Bookings = () => {
   };
 
   const updateStatus =
-  async(id,status)=>{
+async(id,status)=>{
 
-    try{
+  console.log(
+    "Updating",
+    id,
+    status
+  );
 
-      await api.put(
-        `/bookings/${id}/status`,
-        {
-          status
-        }
-      );
+  try{
 
-      fetchBookings();
+    const res =
+    await api.put(
+      `/bookings/${id}/status`,
+      {status}
+    );
 
-    }catch(err){
+    console.log(res.data);
 
-      console.log(err);
+    setEditingId(null);
 
-    }
+    fetchBookings();
 
-  };
+  }
+  catch(err){
 
+    console.log(err.response);
+
+  }
+
+};
+console.log(customers);
   return (
 
     <DashboardLayout>
-
-      <h1
-      className="page-title"
-      >
+      <div className="page-header">
+      <h1>
         Bookings
       </h1>
+  <p>
+    Manage your bookings here.
+  </p>
+  </div>
 
-      <div
-      className="stat-card"
-      >
+      <div className="pricing-card">
 
-        <h3>
+        <h2 className="pricing-card-title">
           Create Booking
-        </h3>
-
-        <br />
+        </h2>
 
         <form
+        className="pricing-form"
         onSubmit={
           createBooking
         }
         >
 
-          <input
-            type="number"
-            name="customer_id"
-            placeholder="Customer ID"
-            value={
-              form.customer_id
-            }
-            onChange={
-              handleChange
-            }
-          />
+          <select
+  name="customer_id"
+  value={form.customer_id}
+  onChange={handleChange}
+>
+  <option value="">
+    Select Customer
+  </option>
 
-          <br /><br />
+  {customers.map(c => (
+    <option
+      key={c.customer_id}
+      value={c.customer_id}
+    >
+      {c.full_name}
+    </option>
+  ))}
+</select>
 
-          <input
-            type="number"
-            name="bin_id"
-            placeholder="Bin ID"
-            value={
-              form.bin_id
-            }
-            onChange={
-              handleChange
-            }
-          />
+          <select
+  name="bin_id"
+  value={form.bin_id}
+  onChange={handleChange}
+>
+  <option value="">
+    Select Bin
+  </option>
 
-          <br /><br />
+  <option value="1">2m³ Skip Bin</option>
+  <option value="2">3m³ Skip Bin</option>
+  <option value="3">4m³ Skip Bin</option>
+  <option value="4">6m³ Skip Bin</option>
+  <option value="5">8m³ Skip Bin</option>
+  <option value="6">10m³ Skip Bin</option>
+</select>
 
-          <input
-            type="number"
-            name="waste_id"
-            placeholder="Waste ID"
-            value={
-              form.waste_id
-            }
-            onChange={
-              handleChange
-            }
-          />
 
-          <br /><br />
+          <select
+  name="waste_id"
+  value={form.waste_id}
+  onChange={handleChange}
+>
+  <option value="">
+    Select Waste Type
+  </option>
+
+  <option value="1">General Waste</option>
+  <option value="2">Green Waste</option>
+  <option value="3">Mixed Waste</option>
+</select>
+
 
           <input
             type="text"
@@ -194,10 +229,10 @@ const Bookings = () => {
             }
             onChange={
               handleChange
-            }
+            } 
+            required
           />
 
-          <br /><br />
 
           <input
             type="date"
@@ -208,12 +243,12 @@ const Bookings = () => {
             onChange={
               handleChange
             }
+            required
           />
 
-          <br /><br />
 
           <input
-            type="number"
+            type="text"
             name="hire_weeks"
             placeholder="Weeks"
             value={
@@ -222,12 +257,12 @@ const Bookings = () => {
             onChange={
               handleChange
             }
+            required
           />
 
-          <br /><br />
 
           <input
-            type="number"
+            type="text"
             name="distance_km"
             placeholder="Distance KM"
             value={
@@ -236,12 +271,13 @@ const Bookings = () => {
             onChange={
               handleChange
             }
+            required
           />
 
-          <br /><br />
 
           <button
           type="submit"
+          className="pricing-btn"
           >
             Create Booking
           </button>
@@ -250,12 +286,14 @@ const Bookings = () => {
 
       </div>
 
-      <br />
-
+    
       <div
-      className="table-container"
+      className="stat-card"
       >
 
+        <h2>
+          All Bookings
+        </h2>
         <table>
 
           <thead>
@@ -280,81 +318,125 @@ const Bookings = () => {
 
           <tbody>
 
-            {
-              bookings.map(
-              (b) => (
+{
+bookings.map((b)=>(
 
-                <tr
-                key={
-                  b.booking_id
-                }
-                >
+<tr key={b.booking_id}>
 
-                  <td>
-                    {b.booking_id}
-                  </td>
+  <td>
+    {b.booking_id}
+  </td>
 
-                  <td>
-                    {b.full_name}
-                  </td>
+  <td>
+    {b.full_name}
+  </td>
 
-                  <td>
-                    {b.size}
-                  </td>
+  <td>
+    {b.size}
+  </td>
 
-                  <td>
-                    {b.status}
-                  </td>
+  <td>
 
-                  <td>
-                    $
-                    {b.total_amount}
-                  </td>
+    {
+    editingId===b.booking_id ?
 
-                  <td>
+    <select
+      value={editForm.status}
+      onChange={(e)=>
+        setEditForm({
+          ...editForm,
+          status:e.target.value
+        })
+      }
+    >
 
-                    <button
-                    onClick={()=>
-                    updateStatus(
-                      b.booking_id,
-                      "CONFIRMED"
-                    )}
-                    >
-                      Confirm
-                    </button>
+      <option value="NEW">
+        NEW
+      </option>
 
-                    {" "}
+      <option value="CONFIRMED">
+        CONFIRMED
+      </option>
 
-                    <button
-                    onClick={()=>
-                    updateStatus(
-                      b.booking_id,
-                      "ACTIVE"
-                    )}
-                    >
-                      Active
-                    </button>
+      <option value="ACTIVE">
+        ACTIVE
+      </option>
 
-                    {" "}
+      <option value="COMPLETED">
+        COMPLETED
+      </option>
 
-                    <button
-                    onClick={()=>
-                    updateStatus(
-                      b.booking_id,
-                      "COMPLETED"
-                    )}
-                    >
-                      Complete
-                    </button>
+    </select>
 
-                  </td>
+    :
 
-                </tr>
+    b.status
 
-              ))
-            }
+    }
 
-          </tbody>
+  </td>
+
+  <td>
+    ${b.total_amount}
+  </td>
+
+  <td>
+
+    {
+    editingId===b.booking_id ?
+
+    <>
+
+      <button
+        className="edit-btn"
+        onClick={()=>
+          updateStatus(
+            b.booking_id,
+            editForm.status
+          )
+        }
+      >
+        Save
+      </button>
+
+      <button
+        className="delete-btn"
+        onClick={()=>
+          setEditingId(null)
+        }
+      >
+        Cancel
+      </button>
+
+    </>
+
+    :
+
+    <button
+      className="edit-btn"
+      onClick={()=>{
+        setEditingId(
+          b.booking_id
+        );
+
+        setEditForm({
+          status:b.status
+        });
+      }}
+    >
+      Edit
+    </button>
+
+    }
+
+  </td>
+
+</tr>
+
+))
+}
+
+</tbody>
 
         </table>
 

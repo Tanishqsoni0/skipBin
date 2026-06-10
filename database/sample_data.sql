@@ -15,12 +15,14 @@ VALUES
 ('Green Waste',20),
 ('Soil',50);
 
-INSERT INTO distance_charges(min_km,max_km,charge)
+INSERT INTO distance_charges
+(min_km,max_km,charge)
 VALUES
 (0,10,0),
-(10,20,25),
-(20,40,50),
-(40,9999,100);
+(10.01,20,20),
+(20.01,30,40),
+(30.01,50,60),
+(50.01,100,100);
 
 INSERT INTO customers(full_name,mobile,email,address)
 VALUES(

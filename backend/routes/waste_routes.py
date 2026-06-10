@@ -39,3 +39,45 @@ def add_waste():
     return jsonify({
         "message":"Waste type added"
     })
+@waste_bp.route("/waste-types/<int:id>", methods=["PUT"])
+def update_waste_type(id):
+
+    data = request.json
+
+    cursor.execute(
+        """
+        UPDATE waste_types
+        SET
+        waste_name=%s,
+        extra_charge=%s
+        WHERE waste_id=%s
+        """,
+        (
+            data["waste_name"],
+            data["extra_charge"],
+            id
+        )
+    )
+
+    conn.commit()
+
+    return jsonify({
+        "message":"Waste Type Updated"
+    })
+
+@waste_bp.route("/waste-types/<int:id>", methods=["DELETE"])
+def delete_waste_type(id):
+
+    cursor.execute(
+        """
+        DELETE FROM waste_types
+        WHERE waste_id=%s
+        """,
+        (id,)
+    )
+
+    conn.commit()
+
+    return jsonify({
+        "message":"Waste Type Deleted"
+    })

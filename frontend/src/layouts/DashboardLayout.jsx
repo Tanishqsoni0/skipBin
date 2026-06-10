@@ -1,7 +1,6 @@
 import React from "react";
 
 import Sidebar from "../components/Sidebar";
-import Navbar from "../components/Navbar";
 
 const DashboardLayout = ({
   children
@@ -13,7 +12,6 @@ const DashboardLayout = ({
 
       <div className="main-content">
 
-        <Navbar />
 
         <div className="page-content">
           {children}

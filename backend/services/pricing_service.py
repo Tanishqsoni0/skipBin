@@ -1,9 +1,75 @@
 from database.db import cursor
+import requests
+from math import radians,sin,cos,sqrt,atan2
+WAREHOUSE_LAT = -33.8688
+WAREHOUSE_LON = 151.2093
+def get_coordinates(address):
+
+    url = (
+        "https://nominatim.openstreetmap.org/search"
+    )
+
+    response = requests.get(
+        url,
+        params={
+            "q": address,
+            "format": "json",
+            "limit": 1
+        },
+        headers={
+            "User-Agent":"SkipBinProject"
+        }
+    )
+
+    data = response.json()
+
+    if not data:
+        return None
+
+    return (
+        float(data[0]["lat"]),
+        float(data[0]["lon"])
+    )
+
+
+def calculate_distance(
+    lat1,
+    lon1,
+    lat2,
+    lon2
+):
+
+    R = 6371
+
+    dlat = radians(lat2-lat1)
+    dlon = radians(lon2-lon1)
+
+    a = (
+        sin(dlat/2)**2
+        +
+        cos(radians(lat1))
+        *
+        cos(radians(lat2))
+        *
+        sin(dlon/2)**2
+    )
+
+    return (
+        2
+        *
+        R
+        *
+        atan2(
+            sqrt(a),
+            sqrt(1-a)
+        )
+    )
 
 def calculate_price(
     bin_id,
     waste_id,
-    hire_weeks
+    hire_weeks,
+    delivery_address=""
 ):
 
     cursor.execute(
@@ -28,6 +94,16 @@ def calculate_price(
 
     waste_data = cursor.fetchone()
 
+    cursor.execute(
+        """
+        SELECT extension_fee
+        FROM hire_pricing
+        LIMIT 1
+        """
+    )
+    extension_fee = float(
+        cursor.fetchone()["extension_fee"]
+    )
     base_price = float(
         bin_data["base_price"]
     )
@@ -38,13 +114,48 @@ def calculate_price(
 
     extension_fee = max(
         0,
-        (hire_weeks - 1) * 40
+        (hire_weeks - 1) * extension_fee
     )
 
+    coords = get_coordinates(
+        delivery_address
+    )
+
+    if coords:
+
+        customer_lat,customer_lon = coords
+
+        distance_km = calculate_distance(
+            WAREHOUSE_LAT,
+            WAREHOUSE_LON,
+            customer_lat,
+            customer_lon
+        )
+
+    else:
+
+        distance_km = 0
+    cursor.execute(
+        """
+        SELECT charge
+        FROM distance_charges
+        WHERE %s BETWEEN min_km AND max_km
+        """,
+        (distance_km,)
+    )
+
+    distance_row = cursor.fetchone()
+
+    delivery_charge = (
+        float(distance_row["charge"])
+        if distance_row
+        else 0
+    )
     total = (
         base_price
         + waste_charge
         + extension_fee
+        + delivery_charge
     )
 
     return {
@@ -57,6 +168,12 @@ def calculate_price(
 
         "extension_fee":
         extension_fee,
+
+        "delivery_charge":
+        delivery_charge,
+
+        "distance_km":
+        round(distance_km, 2),
 
         "total":
         total

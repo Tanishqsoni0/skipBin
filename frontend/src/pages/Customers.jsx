@@ -93,18 +93,19 @@ const Customers = () => {
   return (
 
     <DashboardLayout>
-
-      <h1 className="page-title">
+      <div className="page-header">
+      <h1>
         Customers
       </h1>
-      <div className="stat-card">
+      <p>Manage your customers and their profiles here.</p>
+      </div>
 
-  <h3>
+      <div className="pricing-card">
+
+  <h2 className="pricing-card-title">
     Search Customer
-  </h3>
-
-  <br />
-
+  </h2>
+  <br/>
   <input
     type="text"
     placeholder="Search Mobile Number"
@@ -113,15 +114,14 @@ const Customers = () => {
   />
 
 </div>
-      <div className="stat-card">
+      <div className="pricing-card">
 
-        <h3>
+        <h3 className="pricing-card-title">
           Add Customer
         </h3>
 
-        <br />
-
         <form
+          className="pricing-form"
           onSubmit={addCustomer}
         >
 
@@ -133,8 +133,6 @@ const Customers = () => {
             onChange={handleChange}
           />
 
-          <br /><br />
-
           <input
             type="text"
             name="mobile"
@@ -142,8 +140,6 @@ const Customers = () => {
             value={form.mobile}
             onChange={handleChange}
           />
-
-          <br /><br />
 
           <input
             type="email"
@@ -153,8 +149,6 @@ const Customers = () => {
             onChange={handleChange}
           />
 
-          <br /><br />
-
           <input
             type="text"
             name="address"
@@ -162,8 +156,6 @@ const Customers = () => {
             value={form.address}
             onChange={handleChange}
           />
-
-          <br /><br />
 
           <button
             type="submit"
@@ -174,8 +166,6 @@ const Customers = () => {
         </form>
 
       </div>
-
-      <br />
 
       <div className="table-container">
 
@@ -234,8 +224,9 @@ const Customers = () => {
         </td>
 
         <td>
-
+          <div className="action-buttons">
           <button
+          className="edit-btn"
   onClick={() =>
     navigate(
       `/customers/${c.customer_id}`
@@ -246,6 +237,7 @@ const Customers = () => {
 </button>
 
           <button
+            className="delete-btn"
             onClick={() =>
               deleteCustomer(
                 c.customer_id
@@ -254,7 +246,7 @@ const Customers = () => {
           >
             Delete
           </button>
-
+</div>
         </td>
 
       </tr>

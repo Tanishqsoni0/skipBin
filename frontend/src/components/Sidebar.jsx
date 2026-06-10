@@ -5,9 +5,14 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
 
-      <h2 className="logo">
-        Jerry's Bins
-      </h2>
+       <div className="brand">
+          <span className="brand-logo">🚛</span>
+
+          <div>
+            <h2 style={{ color: "#ffffff" }}>Jerry's Bins</h2>
+            <p>Admin Dashboard</p>
+          </div>
+        </div>
 
       <Link to="/dashboard">Dashboard</Link>
 
@@ -19,6 +24,14 @@ const Sidebar = () => {
 
       <Link to="/waste-types">
         Waste Types
+      </Link>
+
+      <Link to="/hire-pricing">
+        Hire Pricing
+      </Link>
+
+      <Link to="/distance-charges">
+        Distance Charges
       </Link>
 
       <Link to="/promotions">

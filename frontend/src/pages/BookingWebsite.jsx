@@ -5,6 +5,7 @@ import Footer from "../components/Footer";
 import api from "../services/api";
 import { isLoggedIn, fetchMe } from "../services/authService";
 import "../booking.css";
+import { useSearchParams } from "react-router-dom";
 const BookingWebsite = () => {
   const navigate = useNavigate();
 
@@ -15,6 +16,10 @@ const BookingWebsite = () => {
   const [submitting, setSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState("");
   const [bookingError, setBookingError] = useState("");
+  const [searchParams] = useSearchParams();
+
+const selectedBin = searchParams.get("bin");
+
   const [collectionDate,setCollectionDate]=useState("");
   const [form, setForm] = useState({
     customer_name: "",
@@ -26,7 +31,20 @@ const BookingWebsite = () => {
     delivery_date: "",
     hire_weeks: 1,
   });
+useEffect(() => {
 
+  if(selectedBin){
+
+    setForm(prev => ({
+      ...prev,
+      bin_id: selectedBin
+    }));
+
+  }
+
+}, [selectedBin]);
+console.log("URL bin =", selectedBin);
+console.log("Form bin =", form.bin_id);
 const [pricing,setPricing]=useState({
   base_price:0,
   waste_charge:0,
@@ -50,7 +68,7 @@ useEffect(() => {
         {
           bin_id:Number(form.bin_id),
           waste_id:Number(form.waste_id),
-          hire_weeks:Number(form.hire_weeks)
+          hire_weeks:Number(form.hire_weeks),
         }
       );
 
@@ -306,7 +324,37 @@ useEffect(() => {
         onChange={handleChange}
         required
       />
+      <br />
 
+<button
+  type="button"
+  className="calculate-btn"
+  onClick={async () => {
+
+    try {
+
+      const res = await api.post(
+        "/calculate-price",
+        {
+          bin_id:Number(form.bin_id),
+          waste_id:Number(form.waste_id),
+          hire_weeks:Number(form.hire_weeks),
+          delivery_address:form.delivery_address
+        }
+      );
+
+      setPricing(res.data);
+
+    } catch(err) {
+
+      console.log(err);
+
+    }
+
+  }}
+>
+  Calculate Delivery Charge
+</button>
       <br />
       <br />
       <h3> Delivery Date </h3>
@@ -382,8 +430,15 @@ useEffect(() => {
 </div>
 
 <div className="summary-row">
-  <span>Collection</span>
-  <span>{collectionDate || "-"}</span>
+  <span>Distance</span>
+  <span>
+    {pricing.distance_km || 0} km
+  </span>
+</div>
+
+<div className="summary-row">
+  <span>Delivery Charge</span>
+  <span>${pricing.delivery_charge || 0}</span>
 </div>
 
 <div className="summary-total">

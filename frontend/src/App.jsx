@@ -15,6 +15,8 @@ import Customers from "./pages/Customers";
 import Bookings from "./pages/Bookings";
 import Bins from "./pages/Bins";
 import WasteTypes from "./pages/WasteTypes";
+import HirePricing from "./pages/HirePricing";
+import DistanceCharges from "./pages/DistanceCharges";
 import Promotions from "./pages/Promotions";
 import Reports from "./pages/Reports";
 
@@ -68,8 +70,16 @@ function App() {
           <ProtectedAdminRoute><WasteTypes /></ProtectedAdminRoute>
         } />
 
+        <Route path="/hire-pricing" element={
+          <ProtectedAdminRoute><HirePricing /></ProtectedAdminRoute>
+        } />
+
         <Route path="/promotions" element={
           <ProtectedAdminRoute><Promotions /></ProtectedAdminRoute>
+        } />
+
+        <Route path="/distance-charges" element={
+          <ProtectedAdminRoute><DistanceCharges /></ProtectedAdminRoute>
         } />
 
         <Route path="/reports" element={

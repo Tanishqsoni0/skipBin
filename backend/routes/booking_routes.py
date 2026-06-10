@@ -19,7 +19,7 @@ booking_bp = Blueprint(
     methods=["GET"]
 )
 def get_bookings():
-
+    db.ensure_connection()
     query = """
     SELECT
         b.booking_id,
@@ -56,7 +56,7 @@ def get_bookings():
     methods=["POST"]
 )
 def create_booking():
-
+    db.ensure_connection()
     data = request.json
 
     customer_id = data["customer_id"]
@@ -150,13 +150,14 @@ def create_booking():
 
 @booking_bp.route("/calculate-price", methods=["POST"])
 def get_price():
-
+    db.ensure_connection()
     data=request.json
 
     result=calculate_price(
         int(data["bin_id"]),
         int(data["waste_id"]),
-        int(data["hire_weeks"])
+        int(data["hire_weeks"]),
+        data.get("delivery_address","")
     )
 
     return jsonify(result)
@@ -167,7 +168,7 @@ def get_price():
     methods=["GET"]
 )
 def my_bookings(customer_id):
-
+    db.ensure_connection()
     query = """
     SELECT
         b.booking_id,
@@ -251,7 +252,7 @@ def collections_tomorrow():
     methods=["PUT"]
 )
 def update_booking_status(id):
-
+    db.ensure_connection()
     data=request.json
 
     db.cursor.execute(

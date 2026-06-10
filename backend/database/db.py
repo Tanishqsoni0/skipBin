@@ -19,6 +19,7 @@ db_pool = pooling.MySQLConnectionPool(
     charset="utf8mb4",
     collation="utf8mb4_unicode_ci",
     autocommit=False,
+    ssl_disabled=True
 )
 
 def get_db():
@@ -37,6 +38,7 @@ conn = mysql.connector.connect(
     charset="utf8mb4",
     collation="utf8mb4_unicode_ci",
     autocommit=False,
+    ssl_disabled=True
 )
 
 cursor = conn.cursor(
@@ -73,6 +75,7 @@ def ensure_connection():
             charset="utf8mb4",
             collation="utf8mb4_unicode_ci",
             autocommit=False,
+            ssl_disabled=True
         )
 
         cursor = conn.cursor(

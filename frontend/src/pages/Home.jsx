@@ -1,3 +1,4 @@
+import "../home.css";
 import HeroSection from "../components/HeroSection";
 import Footer from "../components/Footer";
 import WebsiteNavbar from "../components/WebsiteNavbar";
@@ -8,7 +9,6 @@ import WhyChooseUs from "../components/WhyChooseUs";
 import LoyaltySection from "../components/LoyaltySection";
 import Testimonials from "../components/Testimonials";
 import FAQ from "../components/FAQ";
-
 const Home = () => {
 
   return (
@@ -34,33 +34,39 @@ const Home = () => {
         <div className="bins-grid">
 
           <BinCard
+            bin_id="1"
             size="2m³ Skip Bin"
-            price="120"
+            price="100"
           />
 
           <BinCard
+            bin_id="2"
             size="3m³ Skip Bin"
-            price="160"
+            price="150"
           />
 
           <BinCard
+            bin_id="3"  
             size="4m³ Skip Bin"
-            price="220"
+            price="200"
           />
 
           <BinCard
+            bin_id="4"
             size="6m³ Skip Bin"
-            price="280"
+            price="250"
           />
 
           <BinCard
+            bin_id="5"
             size="8m³ Skip Bin"
-            price="350"
+            price="300"
           />
 
           <BinCard
+            bin_id="6"
             size="10m³ Skip Bin"
-            price="450"
+            price="400"
           />
 
         </div>

@@ -1,27 +1,21 @@
-import React, {
-  useEffect,
-  useState
-} from "react";
+import React,{useEffect,useState} from "react";
+import DashboardLayout from "../layouts/DashboardLayout";
+import api from "../services/api";
 
-import DashboardLayout
-from "../layouts/DashboardLayout";
+const Bins=()=>{
 
-import api
-from "../services/api";
+  const [bins,setBins]=useState([]);
 
-const Bins = () => {
-
-  const [bins,
-  setBins] =
-  useState([]);
-
-  const [form,
-  setForm] =
-  useState({
-
+  const [form,setForm]=useState({
     size:"",
     base_price:""
+  });
 
+  const [editingId,setEditingId]=useState(null);
+
+  const [editForm,setEditForm]=useState({
+    size:"",
+    base_price:""
   });
 
   useEffect(()=>{
@@ -30,21 +24,17 @@ const Bins = () => {
 
   },[]);
 
-  const fetchBins =
-  async()=>{
+  const fetchBins=async()=>{
 
     try{
 
-      const res =
-      await api.get(
-        "/bins"
-      );
+      const res=
+      await api.get("/bins");
 
-      setBins(
-        res.data
-      );
+      setBins(res.data);
 
-    }catch(err){
+    }
+    catch(err){
 
       console.log(err);
 
@@ -52,22 +42,17 @@ const Bins = () => {
 
   };
 
-  const handleChange =
-  (e)=>{
+  const handleChange=(e)=>{
 
     setForm({
-
       ...form,
-
       [e.target.name]:
       e.target.value
-
     });
 
   };
 
-  const addBin =
-  async(e)=>{
+  const addBin=async(e)=>{
 
     e.preventDefault();
 
@@ -79,15 +64,14 @@ const Bins = () => {
       );
 
       setForm({
-
         size:"",
         base_price:""
-
       });
 
       fetchBins();
 
-    }catch(err){
+    }
+    catch(err){
 
       console.log(err);
 
@@ -95,12 +79,11 @@ const Bins = () => {
 
   };
 
-  const deleteBin =
-  async(id)=>{
+  const deleteBin=async(id)=>{
 
     if(
       !window.confirm(
-      "Delete bin?"
+        "Delete Bin?"
       )
     ) return;
 
@@ -112,7 +95,30 @@ const Bins = () => {
 
       fetchBins();
 
-    }catch(err){
+    }
+    catch(err){
+
+      console.log(err);
+
+    }
+
+  };
+
+  const updateBin=async(id)=>{
+
+    try{
+
+      await api.put(
+        `/bins/${id}`,
+        editForm
+      );
+
+      setEditingId(null);
+
+      fetchBins();
+
+    }
+    catch(err){
 
       console.log(err);
 
@@ -124,67 +130,63 @@ const Bins = () => {
 
     <DashboardLayout>
 
-      <h1
-      className="page-title"
-      >
-        Bin Management
-      </h1>
+      <div className="page-header">
 
-      <div
-      className="stat-card"
-      >
+  <h1>
+    Bin Management
+  </h1>
 
-        <h3>
-          Add Bin
-        </h3>
+  <p>
+    Manage skip bin sizes and pricing used in bookings.
+  </p>
 
-        <br/>
+</div>
 
-        <form
-        onSubmit={addBin}
-        >
+      <div className="pricing-card">
 
-          <input
-            type="text"
-            name="size"
-            placeholder="2m³"
-            value={form.size}
-            onChange={
-              handleChange
-            }
-          />
+  <h2 className="pricing-card-title">
+    Add Bin
+  </h2>
 
-          <br/><br/>
+  <form
+    className="pricing-form"
+    onSubmit={addBin}
+  >
 
-          <input
-            type="number"
-            name="base_price"
-            placeholder="Base Price"
-            value={
-              form.base_price
-            }
-            onChange={
-              handleChange
-            }
-          />
+    <input
+      type="text"
+      name="size"
+      placeholder="Bin Size"
+      value={form.size}
+      onChange={handleChange}
+      required
+    />
 
-          <br/><br/>
+    <input
+      type="number"
+      name="base_price"
+      placeholder="Base Price"
+      value={form.base_price}
+      onChange={handleChange}
+      required
+    />
 
-          <button
-          type="submit"
-          >
-            Add Bin
-          </button>
+    <button
+      type="submit"
+      className="pricing-btn"
+    >
+      Add Bin
+    </button>
 
-        </form>
+  </form>
 
-      </div>
+</div>
 
-      <br/>
+      <div className="stat-card">
 
-      <div
-      className="table-container"
-      >
+        <h2>
+          Bin Pricing
+        </h2>
 
         <table>
 
@@ -193,12 +195,9 @@ const Bins = () => {
             <tr>
 
               <th>ID</th>
-
               <th>Size</th>
-
               <th>Base Price</th>
-
-              <th>Action</th>
+              <th>Actions</th>
 
             </tr>
 
@@ -206,46 +205,125 @@ const Bins = () => {
 
           <tbody>
 
-            {
-              bins.map(
-              (bin)=>(
+            {bins.map((bin)=>(
 
-                <tr
-                key={
-                  bin.bin_id
-                }
-                >
+              <tr key={bin.bin_id}>
 
-                  <td>
-                    {bin.bin_id}
-                  </td>
+                <td>
+                  {bin.bin_id}
+                </td>
 
-                  <td>
-                    {bin.size}
-                  </td>
+                <td>
 
-                  <td>
-                    $
-                    {bin.base_price}
-                  </td>
+                  {
+                  editingId===bin.bin_id ?
 
-                  <td>
+                  <input
+                    value={editForm.size}
+                    onChange={(e)=>
+                    setEditForm({
+                      ...editForm,
+                      size:e.target.value
+                    })}
+                  />
+
+                  :
+
+                  bin.size
+                  }
+
+                </td>
+
+                <td>
+
+                  {
+                  editingId===bin.bin_id ?
+
+                  <input
+                    type="number"
+                    value={editForm.base_price}
+                    onChange={(e)=>
+                    setEditForm({
+                      ...editForm,
+                      base_price:e.target.value
+                    })}
+                  />
+
+                  :
+
+                  `$${bin.base_price}`
+                  }
+
+                </td>
+
+                <td>
+
+                  {
+                  editingId===bin.bin_id ?
+
+                  <>
 
                     <button
-                    onClick={()=>
-                    deleteBin(
-                      bin.bin_id
-                    )}
+                      className="edit-btn"
+                      onClick={()=>
+                      updateBin(
+                        bin.bin_id
+                      )}
+                    >
+                      Save
+                    </button>
+
+                    <button
+                      className="delete-btn"
+                      onClick={()=>
+                      setEditingId(null)
+                      }
+                    >
+                      Cancel
+                    </button>
+
+                  </>
+
+                  :
+
+                  <>
+
+                    <button
+                      className="edit-btn"
+                      onClick={()=>{
+                        setEditingId(
+                          bin.bin_id
+                        );
+
+                        setEditForm({
+                          size:bin.size,
+                          base_price:
+                          bin.base_price
+                        });
+                      }}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="delete-btn"
+                      onClick={()=>
+                      deleteBin(
+                        bin.bin_id
+                      )}
                     >
                       Delete
                     </button>
 
-                  </td>
+                  </>
 
-                </tr>
+                  }
 
-              ))
-            }
+                </td>
+
+              </tr>
+
+            ))}
 
           </tbody>
 

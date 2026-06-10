@@ -15,6 +15,10 @@ const WasteTypes = () => {
   setWasteTypes] =
   useState([]);
 
+  const [editing,
+  setEditing] =
+  useState(null);
+
   const [form,
   setForm] =
   useState({
@@ -44,7 +48,8 @@ const WasteTypes = () => {
         res.data
       );
 
-    }catch(err){
+    }
+    catch(err){
 
       console.log(err);
 
@@ -87,7 +92,86 @@ const WasteTypes = () => {
 
       fetchWasteTypes();
 
-    }catch(err){
+    }
+    catch(err){
+
+      console.log(err);
+
+    }
+
+  };
+
+  const editWaste =
+  (item)=>{
+
+    setEditing(
+      item.waste_id
+    );
+
+    setForm({
+
+      waste_name:
+      item.waste_name,
+
+      extra_charge:
+      item.extra_charge
+
+    });
+
+  };
+
+  const updateWaste =
+  async(id)=>{
+
+    try{
+
+      await api.put(
+
+        `/waste-types/${id}`,
+
+        form
+
+      );
+
+      setEditing(null);
+
+      setForm({
+
+        waste_name:"",
+        extra_charge:""
+
+      });
+
+      fetchWasteTypes();
+
+    }
+    catch(err){
+
+      console.log(err);
+
+    }
+
+  };
+
+  const deleteWaste =
+  async(id)=>{
+
+    if(
+      !window.confirm(
+        "Delete waste type?"
+      )
+    ) return;
+
+    try{
+
+      await api.delete(
+        `/waste-types/${id}`
+      );
+
+      fetchWasteTypes();
+
+    }
+    catch(err){
 
       console.log(err);
 
@@ -99,41 +183,43 @@ const WasteTypes = () => {
 
     <DashboardLayout>
 
-      <h1
-      className="page-title"
-      >
-        Waste Types
-      </h1>
+      <div className="page-header">
 
-      <div
-      className="stat-card"
-      >
+        <h1>
+          Waste Pricing
+        </h1>
 
-        <h3>
+        <p>
+          Manage waste surcharges used in booking calculations.
+        </p>
+
+      </div>
+
+      <div className="pricing-card">
+
+        <h2 className="pricing-card-title">
           Add Waste Type
-        </h3>
-
-        <br/>
+        </h2>
 
         <form
-        onSubmit={
-          addWasteType
-        }
+          onSubmit={
+            addWasteType
+          }
+          className="pricing-form"
         >
 
           <input
             type="text"
             name="waste_name"
-            placeholder="Wood"
+            placeholder="Waste Type"
             value={
               form.waste_name
             }
             onChange={
               handleChange
             }
+            required
           />
-
-          <br/><br/>
 
           <input
             type="number"
@@ -145,12 +231,11 @@ const WasteTypes = () => {
             onChange={
               handleChange
             }
+            required
           />
 
-          <br/><br/>
-
           <button
-          type="submit"
+            type="submit"
           >
             Add Waste Type
           </button>
@@ -159,13 +244,17 @@ const WasteTypes = () => {
 
       </div>
 
-      <br/>
+      <div className="pricing-table-card">
 
-      <div
-      className="table-container"
-      >
+        <div className="table-header">
 
-        <table>
+          <h2>
+            Waste Surcharges
+          </h2>
+
+        </div>
+
+        <table className="pricing-table">
 
           <thead>
 
@@ -177,6 +266,8 @@ const WasteTypes = () => {
 
               <th>Extra Charge</th>
 
+              <th>Actions</th>
+
             </tr>
 
           </thead>
@@ -185,25 +276,104 @@ const WasteTypes = () => {
 
             {
               wasteTypes.map(
-              (waste)=>(
+              item=>(
 
                 <tr
-                key={
-                  waste.waste_id
-                }
+                  key={
+                    item.waste_id
+                  }
                 >
 
                   <td>
-                    {waste.waste_id}
+                    {item.waste_id}
                   </td>
 
                   <td>
-                    {waste.waste_name}
+
+                    {
+                      editing ===
+                      item.waste_id ?
+
+                      <input
+                        name="waste_name"
+                        value={
+                          form.waste_name
+                        }
+                        onChange={
+                          handleChange
+                        }
+                      />
+
+                      :
+
+                      item.waste_name
+                    }
+
                   </td>
 
                   <td>
-                    $
-                    {waste.extra_charge}
+
+                    {
+                      editing ===
+                      item.waste_id ?
+
+                      <input
+                        name="extra_charge"
+                        value={
+                          form.extra_charge
+                        }
+                        onChange={
+                          handleChange
+                        }
+                      />
+
+                      :
+
+                      `$${item.extra_charge}`
+                    }
+
+                  </td>
+
+                  <td>
+
+                    {
+                      editing ===
+                      item.waste_id ?
+
+                      <button
+                        className="save-btn"
+                        onClick={()=>
+                          updateWaste(
+                            item.waste_id
+                          )
+                        }
+                      >
+                        Save
+                      </button>
+
+                      :
+
+                      <button
+                        className="edit-btn"
+                        onClick={()=>
+                          editWaste(item)
+                        }
+                      >
+                        Edit
+                      </button>
+                    }
+
+                    <button
+                      className="delete-btn"
+                      onClick={()=>
+                        deleteWaste(
+                          item.waste_id
+                        )
+                      }
+                    >
+                      Delete
+                    </button>
+
                   </td>
 
                 </tr>

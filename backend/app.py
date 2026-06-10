@@ -12,6 +12,7 @@ from routes.dashboard_routes import dashboard_bp
 from routes.auth_routes import auth_bp
 from routes.admin_auth_routes import admin_auth_bp
 from routes.contact_routes import contact_bp
+from routes.distance_routes import distance_bp
 app = Flask(__name__)
 CORS(
     app,
@@ -41,5 +42,6 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_auth_bp)
 app.register_blueprint(contact_bp)
+app.register_blueprint(distance_bp)
 if __name__ == "__main__":
     app.run(debug=True)

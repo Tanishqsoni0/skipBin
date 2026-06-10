@@ -12,6 +12,7 @@
             contact_routes.py
             customer_routes.py
             dashboard_routes.py
+            distance_routes.py
             loyalty_routes.py
             notes_routes.py
             pricing_routes.py
@@ -46,15 +47,16 @@
             App.jsx
             App.test.js
             auth.css
+            booking.css
         [components]
                 BinCard.jsx
                 BookingTable.jsx
                 CustomerTable.jsx
+                DashboardWidget.jsx
                 FAQ.jsx
                 Footer.jsx
                 HeroSection.jsx
                 LoyaltySection.jsx
-                Navbar.jsx
                 PageHeader.jsx
                 ProtectedAdminRoute.jsx
                 Sidebar.jsx
@@ -63,6 +65,8 @@
                 Testimonials.jsx
                 WebsiteNavbar.jsx
                 WhyChooseUs.jsx
+            dashboard.css
+            home.css
             index.css
             index.js
         [layouts]
@@ -74,11 +78,15 @@
                 Bookings.jsx
                 Commercial.jsx
                 Contact.jsx
+                CustomerProfile.jsx
                 Customers.jsx
                 Dashboard.jsx
+                DistanceCharges.jsx
                 ForgotPasswordPage.jsx
+                HirePricing.jsx
                 Home.jsx
                 LoginPage.jsx
+                MyBookings.jsx
                 Promotions.jsx
                 Reports.jsx
                 SignUpPage.jsx

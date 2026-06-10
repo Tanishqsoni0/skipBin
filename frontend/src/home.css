@@ -1,0 +1,119 @@
+.bin-card{
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.bin-card:hover{
+    transform:translateY(-8px);
+}
+
+.card-preview{
+    height:300px;
+    perspective:1000px;
+}
+
+.card-inner{
+    position:relative;
+    width:100%;
+    height:100%;
+    transition:transform .8s;
+    transform-style:preserve-3d;
+}
+
+.card-preview:hover .card-inner{
+    transform:rotateY(180deg);
+}
+
+.card-front,
+.card-back{
+    position:absolute;
+    width:100%;
+    height:100%;
+    backface-visibility:hidden;
+}
+
+.card-front{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:25px;
+    background:white;
+}
+
+.card-back{
+    background:linear-gradient(
+        135deg,
+        #0f172a,
+        #1e3a8a
+    );
+    color:white;
+    padding:25px;
+    transform:rotateY(180deg);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.bin-icon{
+    font-size:60px;
+    margin-bottom:15px;
+}
+
+.card-front h2{
+    font-size:2rem;
+    margin-bottom:15px;
+    text-align:center;
+}
+
+.bin-price{
+    font-size:3rem;
+    font-weight:700;
+    color:#f59e0b;
+}
+
+.hire-text{
+    color:#666;
+    margin-top:5px;
+}
+
+.card-back h3{
+    margin-bottom:20px;
+    text-align:center;
+}
+
+.card-back ul{
+    list-style:none;
+    padding:0;
+}
+
+.card-back li{
+    margin:10px 0;
+}
+
+.capacity-box{
+    margin-top:20px;
+    background:rgba(255,255,255,.15);
+    padding:12px;
+    border-radius:10px;
+    text-align:center;
+}
+
+.book-btn{
+    width:100%;
+    border:none;
+    background:#f59e0b;
+    color:white;
+    padding:16px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.book-btn:hover{
+    background:#d97706;
+}

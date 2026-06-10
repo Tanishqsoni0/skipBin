@@ -138,12 +138,12 @@ const saveEdit=async(id)=>{
   return(
 
     <DashboardLayout>
-
+      <div className="page-header">
       <h1>
         Customer Profile
       </h1>
 
-      <br/>
+      </div>
 
       <div className="stat-card">
 
@@ -163,10 +163,6 @@ const saveEdit=async(id)=>{
 
         <p>
           ✉ {customer.email}
-        </p>
-
-        <p>
-          📍 {customer.address || "-"}
         </p>
 
       </div>
@@ -249,7 +245,7 @@ const saveEdit=async(id)=>{
   <br/>
   <br/>
 
-  <button
+  <button className="edit-btn"
     onClick={addNote}
   >
     Add Note
@@ -284,7 +280,7 @@ editingNote===note.note_id ?
 <br/>
 <br/>
 
-<button
+<button className="edit-btn"
   onClick={()=>
     saveEdit(
       note.note_id
@@ -294,7 +290,7 @@ editingNote===note.note_id ?
   Save
 </button>
 
-<button
+<button className="delete-btn"
   onClick={()=>
     setEditingNote(
       null
@@ -323,14 +319,14 @@ editingNote===note.note_id ?
 <br/>
 <br/>
 
-<button
+<button className="edit-btn"
   onClick={()=>
     startEdit(note)
   }
 >
   Edit
 </button>
-<button
+<button className="delete-btn"
   onClick={()=>
     deleteNote(
       note.note_id
@@ -363,13 +359,11 @@ editingNote===note.note_id ?
             <tr>
 
               <th>ID</th>
-
-              <th>Delivery</th>
-
-              <th>Collection</th>
-
+              <th>Bin Size</th>
+              <th>Delivery Address</th>
+              <th>Delivery Date</th>
+              <th>Collection Date</th>
               <th>Status</th>
-
               <th>Total</th>
 
             </tr>
@@ -389,12 +383,20 @@ editingNote===note.note_id ?
                 >
 
                   <td>
-                    #
                     {
                       booking.booking_id
                     }
                   </td>
-
+                    <td>
+                      {
+                        booking.size
+                      }
+                    </td>
+                    <td>
+                      {
+                        booking.delivery_address
+                      }
+                    </td>
                   <td>
                     {
                       booking.delivery_date
