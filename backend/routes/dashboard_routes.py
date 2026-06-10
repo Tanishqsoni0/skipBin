@@ -410,6 +410,42 @@ def dashboard_data():
     """)
     completed_jobs = db.cursor.fetchall()
 
+    #Collection Reminders
+    db.cursor.execute("""
+                      SELECT
+
+        b.booking_id,
+
+        CONCAT(
+            c.first_name,
+            ' ',
+            c.last_name
+        ) customer_name,
+
+        bt.size,
+
+        b.collection_date
+
+    FROM bookings b
+
+    JOIN customers c
+    ON c.customer_id=b.customer_id
+
+    JOIN bin_types bt
+    ON bt.bin_id=b.bin_id
+
+    WHERE
+    b.collection_date=
+    DATE_ADD(
+        CURDATE(),
+        INTERVAL 1 DAY
+    )
+
+    ORDER BY
+    b.collection_date
+    """)
+    collection_reminders = db.cursor.fetchall()
+
     return jsonify({
         "stats":{
             "customers":customers,
@@ -420,5 +456,6 @@ def dashboard_data():
         "deliveries":deliveries,
         "activeHires":active_hires,
         "upcomingCollections":upcoming_collections,
-        "completedJobs":completed_jobs
+        "completedJobs":completed_jobs,
+        "collectionReminders":collection_reminders
     })

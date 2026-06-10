@@ -86,7 +86,7 @@ def create_booking():
         )
         +
         timedelta(
-            weeks=hire_weeks
+            weeks=int(data["hire_weeks"])
         )
     ).strftime("%Y-%m-%d")
 
@@ -119,8 +119,8 @@ def create_booking():
         bin_id,
         waste_id,
         delivery_address,
-        delivery_date,
-        collection_date,
+        delivery_date.date(),
+        collection_date.date(),
         hire_weeks,
         pricing["total"],
         0,

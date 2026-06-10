@@ -15,7 +15,7 @@ const [deliveries,setDeliveries]=useState([]);
 const [activeHires,setActiveHires]=useState([]);
 const [upcomingCollections,setUpcomingCollections]=useState([]);
 const [completedJobs,setCompletedJobs]=useState([]);
-
+const [collectionReminders,setCollectionReminders]=useState([]);
 useEffect(()=>{
 
   loadDashboard();
@@ -53,6 +53,10 @@ const loadDashboard = async()=>{
 
     setCompletedJobs(
       res.data.completedJobs
+    );
+
+    setCollectionReminders(
+      res.data.collectionReminders
     );
 
   }catch(err){
@@ -244,7 +248,53 @@ const loadDashboard = async()=>{
 
   </div>
 
-  {/* Collections */}
+    {/* Collection Reminders */}
+    <div className="dashboard-widget">
+
+  <h2>
+    Collection Due Tomorrow
+  </h2>
+
+  {
+  collectionReminders.length===0 ?
+
+  <div className="empty-state">
+    No collections due
+  </div>
+
+  :
+
+  collectionReminders.map(item=>(
+
+    <div
+      key={item.booking_id}
+      className="widget-row"
+    >
+
+      <div>
+
+        <strong>
+          {item.customer_name}
+        </strong>
+
+        <p>
+          {item.size}
+        </p>
+
+      </div>
+
+      <span>
+        🚚 Tomorrow
+      </span>
+
+    </div>
+
+  ))
+  }
+
+</div>
+
+{/* Collections */}
 
   <div className="dashboard-widget">
 
@@ -290,10 +340,10 @@ const loadDashboard = async()=>{
     }
 
   </div>
-
+  
   {/* Completed */}
 
-  <div className="dashboard-widget full-width">
+  <div className="dashboard-widget">
 
     <h2>
       Completed Jobs
