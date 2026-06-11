@@ -1,6 +1,10 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
+
+load_dotenv()  # loads PAYPAL_CLIENT_ID, PAYPAL_SECRET, PAYPAL_MODE from .env
+
 from routes.customer_routes import customer_bp
 from routes.booking_routes import booking_bp
 from routes.pricing_routes import pricing_bp
@@ -14,20 +18,18 @@ from routes.admin_auth_routes import admin_auth_bp
 from routes.contact_routes import contact_bp
 from routes.distance_routes import distance_bp
 from routes.calendar_routes import calendar_bp
+from routes.paypal_routes import paypal_bp          # ← NEW
+
 app = Flask(__name__)
-CORS(
-    app,
-    resources={
-        r"/*":{
-            "origins":[
-                "http://localhost:3000",
-                "http://127.0.0.1:3000"
-            ]
-        }
-    }
-)
+
+CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]}})
+
 app.config["JWT_SECRET_KEY"] = "skipbins_secret"
 jwt = JWTManager(app)
+
 @app.route("/")
 def home():
     return "Hello Skip Bins"
@@ -45,5 +47,7 @@ app.register_blueprint(admin_auth_bp)
 app.register_blueprint(contact_bp)
 app.register_blueprint(distance_bp)
 app.register_blueprint(calendar_bp)
+app.register_blueprint(paypal_bp)                   # ← NEW
+
 if __name__ == "__main__":
     app.run(debug=True)
