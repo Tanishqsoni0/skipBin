@@ -18,6 +18,7 @@ def calculate():
     data = request.json
 
     result = calculate_price(
+        int(data["customer_id"]),
         int(data["bin_id"]),
         int(data["waste_id"]),
         int(data["hire_weeks"]),

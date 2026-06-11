@@ -1,10 +1,7 @@
 // services/authService.js
-// Central place for all auth API calls.
-// Import this wherever you need login / register / profile data.
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-// ── token helpers ────────────────────────────────────────────────────────────
+// ── token helpers ─────────────────────────────────────────────────────────────
 
 export function getAccessToken() {
   return localStorage.getItem("jb_access_token");
@@ -42,7 +39,7 @@ export function isLoggedIn() {
   return !!getAccessToken();
 }
 
-// ── API call wrapper ─────────────────────────────────────────────────────────
+// ── API call wrapper ──────────────────────────────────────────────────────────
 
 async function apiFetch(path, options = {}) {
   const token = getAccessToken();
@@ -58,13 +55,70 @@ async function apiFetch(path, options = {}) {
   return { ok: res.ok, status: res.status, data };
 }
 
-// ── auth calls ───────────────────────────────────────────────────────────────
+// ── fetchMe cache + deduplication ────────────────────────────────────────────
+// Problem: Navbar, BookingWebsite, and other components all call fetchMe()
+// on mount at the same time — flooding the backend with simultaneous requests.
+//
+// Solution:
+//   1. Deduplication  — if a fetchMe() is already in flight, all other callers
+//      wait for that same promise instead of making new requests.
+//   2. Cache (30s TTL) — after a successful fetch, return the cached result
+//      for the next 30 seconds without hitting the server again.
+//   3. invalidateMeCache() — call this after login, logout, or booking so the
+//      next fetchMe() gets fresh data from the server.
 
-/**
- * Register a new customer account.
- * @param {object} fields - { first_name, last_name, email, mobile, password, account_type, business_name? }
- * @returns {{ success, customer, error }}
- */
+let _meCache = null; // { result, timestamp }
+let _meInFlight = null; // Promise | null
+const ME_TTL_MS = 30000; // 30 seconds
+
+export function invalidateMeCache() {
+  _meCache = null;
+  _meInFlight = null;
+}
+
+export async function fetchMe() {
+  // 1 — Return cache if still fresh
+  if (_meCache && Date.now() - _meCache.timestamp < ME_TTL_MS) {
+    return _meCache.result;
+  }
+
+  // 2 — If a request is already in flight, wait for it instead of firing another
+  if (_meInFlight) {
+    return _meInFlight;
+  }
+
+  // 3 — Fire a new request and share the promise with any concurrent callers
+  _meInFlight = apiFetch("/api/auth/me")
+    .then(({ ok, data }) => {
+      _meInFlight = null; // clear in-flight flag when done
+
+      if (ok) {
+        saveCustomer(data.customer);
+        const result = {
+          success: true,
+          customer: data.customer,
+          loyalty: data.loyalty,
+        };
+        // Store in cache
+        _meCache = { result, timestamp: Date.now() };
+        return result;
+      }
+
+      // Failed — don't cache errors
+      _meCache = null;
+      return { success: false, error: data.error || "Could not fetch profile" };
+    })
+    .catch(() => {
+      _meInFlight = null;
+      _meCache = null;
+      return { success: false, error: "Network error" };
+    });
+
+  return _meInFlight;
+}
+
+// ── auth calls ────────────────────────────────────────────────────────────────
+
 export async function register(fields) {
   const { ok, data } = await apiFetch("/api/auth/register", {
     method: "POST",
@@ -74,17 +128,12 @@ export async function register(fields) {
   if (ok) {
     saveTokens(data.access_token, data.refresh_token);
     saveCustomer(data.customer);
+    invalidateMeCache(); // force fresh fetch on next call
     return { success: true, customer: data.customer };
   }
   return { success: false, error: data.error || "Registration failed" };
 }
 
-/**
- * Log in with email and password.
- * @param {string} email
- * @param {string} password
- * @returns {{ success, customer, error }}
- */
 export async function login(email, password) {
   const { ok, data } = await apiFetch("/api/auth/login", {
     method: "POST",
@@ -94,29 +143,14 @@ export async function login(email, password) {
   if (ok) {
     saveTokens(data.access_token, data.refresh_token);
     saveCustomer(data.customer);
+    invalidateMeCache(); // force fresh fetch on next call
     return { success: true, customer: data.customer };
   }
   return { success: false, error: data.error || "Login failed" };
 }
 
-/**
- * Fetch the logged-in user's profile + loyalty progress from the server.
- * Call this on page load to get fresh data.
- * @returns {{ success, customer, loyalty, error }}
- */
-export async function fetchMe() {
-  const { ok, data } = await apiFetch("/api/auth/me");
-  if (ok) {
-    saveCustomer(data.customer);
-    return { success: true, customer: data.customer, loyalty: data.loyalty };
-  }
-  return { success: false, error: data.error || "Could not fetch profile" };
-}
-
-/**
- * Log out — clears local tokens and tells the server.
- */
 export async function logout() {
   await apiFetch("/api/auth/logout", { method: "POST" }).catch(() => {});
   clearTokens();
+  invalidateMeCache(); // clear cache on logout
 }

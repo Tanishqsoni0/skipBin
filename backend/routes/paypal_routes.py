@@ -8,7 +8,6 @@ from database.db import get_db
 from services.paypal_service import create_order, capture_order
 from services.pricing_service import calculate_price
 from services.date_service import calculate_collection_date
-from services.loyalty_service import is_loyalty_eligible
 import uuid
 
 paypal_bp = Blueprint("paypal", __name__, url_prefix="/api/payment")
@@ -45,23 +44,19 @@ def create_payment():
     try:
         # ── Use your existing pricing_service (handles distance from address) ──
         pricing = calculate_price(
+            customer_id,       # ← pass customer_id first
             int(bin_id),
             int(waste_id),
             hire_weeks,
             delivery_address
         )
 
-        total_amount    = pricing["total"]
-        delivery_charge = pricing["delivery_charge"]
-        waste_charge    = pricing["waste_charge"]
-        bin_price       = pricing["base_price"]
-        extension_fee   = pricing["extension_fee"]
-
-        # ── Apply loyalty discount if eligible ────────────────────────────────
-        discount = 0
-        if is_loyalty_eligible(customer_id):
-            discount     = bin_price
-            total_amount = total_amount - bin_price
+        total_amount    = float(pricing["total"])
+        delivery_charge = float(pricing["delivery_charge"])
+        waste_charge    = float(pricing["waste_charge"])
+        bin_price       = float(pricing["base_price"])
+        discount        = float(pricing["loyalty_discount"])
+        # loyalty already handled inside pricing_service — no need to subtract again
 
         collection_date = calculate_collection_date(delivery_date, hire_weeks)
         booking_ref     = f"JB-{uuid.uuid4().hex[:8].upper()}"
