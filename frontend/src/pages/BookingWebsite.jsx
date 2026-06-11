@@ -14,45 +14,18 @@ const BookingWebsite = () => {
   const [customer, setCustomer] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState("");
-  const [bookingError, setBookingError] = useState("");
   const [searchParams] = useSearchParams();
+  const selectedBin = searchParams.get("bin");
 
-const selectedBin = searchParams.get("bin");
-
-  const [collectionDate,setCollectionDate]=useState("");
   const [form, setForm] = useState({
-    customer_name: "",
-    mobile: "",
-    email: "",
     delivery_address: "",
     bin_id: "",
     waste_id: "",
     delivery_date: "",
     hire_weeks: 1,
   });
-useEffect(() => {
 
-  if(selectedBin){
-
-    setForm(prev => ({
-      ...prev,
-      bin_id: selectedBin
-    }));
-
-  }
-
-}, [selectedBin]);
-console.log("URL bin =", selectedBin);
-console.log("Form bin =", form.bin_id);
-const [pricing,setPricing]=useState({
-  base_price:0,
-  waste_charge:0,
-  extension_fee:0,
-  total:0
-});
-
-useEffect(() => {
+  useEffect(() => {
 
   if(
     !form.bin_id ||
@@ -70,6 +43,7 @@ useEffect(() => {
           bin_id:Number(form.bin_id),
           waste_id:Number(form.waste_id),
           hire_weeks:Number(form.hire_weeks),
+          delivery_address:form.delivery_address
         }
       );
 
@@ -88,34 +62,41 @@ useEffect(() => {
 },[
   form.bin_id,
   form.waste_id,
-  form.hire_weeks
+  form.hire_weeks,
+  form.delivery_address,
+  customer
 ]);
-  // ── Step 1: Check login, redirect if not logged in ───────────────────────
+useEffect(() => {
+
+  if(selectedBin){
+
+    setForm(prev => ({
+      ...prev,
+      bin_id: selectedBin
+    }));
+
+  }
+
+}, [selectedBin]);
+const [pricing,setPricing]=useState({
+  base_price:0,
+  waste_charge:0,
+  extension_fee:0,
+  total:0
+});
+
   useEffect(() => {
     if (!isLoggedIn()) {
       sessionStorage.setItem("redirect_after_login", "/booking");
       navigate("/loginpage", { replace: true });
       return;
     }
-
-    // ── Step 2: Fetch profile and pre-fill form ──────────────────────────
-    fetchMe().then((result) => {
-      if (result.success) {
-        const c = result.customer;
-        setCustomer(c);
-        setForm((prev) => ({
-          ...prev,
-          customer_name: `${c.first_name} ${c.last_name}`.trim(),
-          mobile: c.mobile || "",
-          email: c.email || "",
-        }));
-      } else {
-        sessionStorage.setItem("redirect_after_login", "/booking");
-        navigate("/loginpage", { replace: true });
-      }
+    fetchMe().then((result)=>{
+    if(result.success){
+      setCustomer(result.customer);
+    }
       setAuthChecked(true);
-    });
-
+});
     loadData();
   }, []);
 
@@ -129,19 +110,22 @@ useEffect(() => {
       console.log(err);
     }
   };
-
   
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "mobile" && !/^\d*$/.test(value)) return;
     setForm({ ...form, [name]: value });
   };
 
-  // ── Submit booking to backend ────────────────────────────────────────────
   const submitBooking = async (e) => {
     e.preventDefault();
-    setBookingError("");
-    setBookingSuccess("");
+    if(
+        !form.bin_id ||
+        !form.waste_id ||
+        !form.delivery_address ||
+        !form.delivery_date
+      ){
+        return;
+      }
     setSubmitting(true);
 
     try {
@@ -152,39 +136,37 @@ useEffect(() => {
         delivery_address: form.delivery_address,
         delivery_date: form.delivery_date,
         hire_weeks: parseInt(form.hire_weeks),
-        distance_km: 0, // placeholder — distance service coming later
       };
+      
+      await api.post("/bookings",payload);
+      const me = await fetchMe();
 
-      const res = await api.post("/bookings", payload);
-
-      setBookingSuccess({
-  collection_date: res.data.collection_date,
-  total: pricing.total
-});
-
-      // Reset only the fields the customer filled in
-      setForm((prev) => ({
-        ...prev,
+      if(me.success){
+        setCustomer(me.customer);
+      }
+      setForm({
         delivery_address: "",
         bin_id: "",
         waste_id: "",
         delivery_date: "",
         hire_weeks: 1,
-      }));
-
+      });
+      setPricing({
+        base_price:0,
+        waste_charge:0,
+        extension_fee:0,
+        delivery_charge:0,
+        distance_km:0,
+        discount:0,
+        total:0
+      });
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        "Booking failed. Please try again.";
-      setBookingError(msg);
       console.error(err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Don't render until auth check is complete
   if (!authChecked) {
     return (
       <>
@@ -219,35 +201,6 @@ useEffect(() => {
     Fast Delivery • Transparent Pricing • Professional Service
   </p>
 
- {bookingSuccess && (
-  <div className="booking-success-msg">
-
-    <strong>
-      Booking Confirmed 🎉
-    </strong>
-  <br/>
-    Your skip bin has been successfully booked.
-
-    <br />
-
-    📅 Collection Date:
-    {" "}
-    {bookingSuccess.collection_date}
-
-    <br />
-
-    💰 Total Amount:
-    {" "}
-    ${bookingSuccess.total}
-
-  </div>
-)}
-
-  {bookingError && (
-    <div className="booking-error-msg">
-      {bookingError}
-    </div>
-  )}
 
 <form
   id="bookingForm"
@@ -344,36 +297,6 @@ useEffect(() => {
       />
       <br />
 
-<button
-  type="button"
-  className="calculate-btn"
-  onClick={async () => {
-
-    try {
-
-      const res = await api.post(
-        "/calculate-price",
-        {
-          bin_id:Number(form.bin_id),
-          waste_id:Number(form.waste_id),
-          hire_weeks:Number(form.hire_weeks),
-          delivery_address:form.delivery_address
-        }
-      );
-
-      setPricing(res.data);
-
-    } catch(err) {
-
-      console.log(err);
-
-    }
-
-  }}
->
-  Calculate Delivery Charge
-</button>
-      <br />
       <br />
       <h3> Delivery Date </h3>
       <input
@@ -400,7 +323,7 @@ useEffect(() => {
             key={week}
             type="button"
             className={
-              form.hire_weeks == week
+              form.hire_weeks === week
               ? "duration-btn active"
               : "duration-btn"
             }
@@ -485,15 +408,11 @@ Only waste, delivery and extension charges apply.
   <h1>${pricing.total}</h1>
 </div>
 
-  <div className="summary-total">
-
-  </div>
-
   <button
     type="submit"
     form="bookingForm"
     className="book-btn"
-    disabled={submitting}
+    disabled={submitting||pricing.total === 0}
   >
     {
       submitting
@@ -520,7 +439,7 @@ Only waste, delivery and extension charges apply.
           className="loyalty-fill"
           style={{
             width:
-            `${(customer.loyalty_count % 7)*14.28}%`
+            `${((customer.loyalty_count % 7)/7)*100}%`
           }}
         />
 

@@ -9,12 +9,14 @@
             auth_routes.py
             bin_routes.py
             booking_routes.py
+            calendar_routes.py
             contact_routes.py
             customer_routes.py
             dashboard_routes.py
             distance_routes.py
             loyalty_routes.py
             notes_routes.py
+            paypal_routes.py
             pricing_routes.py
             promotion_routes.py
             waste_routes.py
@@ -22,6 +24,7 @@
             date_service.py
             distance_service.py
             loyalty_service.py
+            paypal_service.py
             pricing_service.py
             promotion_service.py
 [database]
@@ -33,6 +36,7 @@
         customers.sql
         distance_charges.sql
         loyalty_rewards.sql
+        pending_bookings.sql
         promotions.sql
         sample_data.sql
         waste_types.sql
@@ -76,6 +80,7 @@
                 Bins.jsx
                 BookingWebsite.jsx
                 Bookings.jsx
+                Calendar.jsx
                 Commercial.jsx
                 Contact.jsx
                 CustomerProfile.jsx
