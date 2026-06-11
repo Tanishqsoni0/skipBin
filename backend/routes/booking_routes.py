@@ -67,11 +67,14 @@ def create_booking():
 
     delivery_address = data["delivery_address"]
 
-    delivery_date = data["delivery_date"]
-
     hire_weeks = int(
         data["hire_weeks"]
     )
+
+    delivery_date = datetime.strptime(
+        data["delivery_date"],
+        "%Y-%m-%d"
+    ).date()
 
     pricing = calculate_price(
         bin_id,
@@ -80,15 +83,9 @@ def create_booking():
     )
 
     collection_date = (
-        datetime.strptime(
-            delivery_date,
-            "%Y-%m-%d"
-        )
-        +
-        timedelta(
-            weeks=int(data["hire_weeks"])
-        )
-    ).strftime("%Y-%m-%d")
+        delivery_date +
+        timedelta(weeks=hire_weeks)
+    )
 
     query = """
     INSERT INTO bookings
@@ -119,8 +116,8 @@ def create_booking():
         bin_id,
         waste_id,
         delivery_address,
-        delivery_date.date(),
-        collection_date.date(),
+        delivery_date,
+        collection_date,
         hire_weeks,
         pricing["total"],
         0,
@@ -136,16 +133,9 @@ def create_booking():
     db.conn.commit()
 
     return jsonify({
-
-        "message":
-        "Booking Created",
-
-        "collection_date":
-        collection_date,
-
-        "total_amount":
-        pricing["total"]
-
+        "message": "Booking Created",
+        "collection_date": collection_date.isoformat(),
+        "total_amount": pricing["total"]
     })
 
 @booking_bp.route("/calculate-price", methods=["POST"])
