@@ -15,7 +15,7 @@ const Sidebar = () => {
         </div>
 
       <Link to="/dashboard">Dashboard</Link>
-
+      <Link to="/calendar">Calendar</Link>
       <Link to="/customers">Customers</Link>
 
       <Link to="/bookings">Bookings</Link>

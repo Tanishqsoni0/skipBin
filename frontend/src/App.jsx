@@ -11,6 +11,7 @@ import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 
 // Admin dashboard pages
 import Dashboard from "./pages/Dashboard";
+import Calendar from "./pages/Calendar";
 import Customers from "./pages/Customers";
 import Bookings from "./pages/Bookings";
 import Bins from "./pages/Bins";
@@ -53,7 +54,9 @@ function App() {
         <Route path="/dashboard" element={
           <ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>
         } />
-
+        <Route path="/calendar" element={
+          <ProtectedAdminRoute><Calendar /></ProtectedAdminRoute>
+        } />
         <Route path="/customers" element={
           <ProtectedAdminRoute><Customers /></ProtectedAdminRoute>
         } />
