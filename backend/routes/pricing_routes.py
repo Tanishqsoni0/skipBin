@@ -3,7 +3,7 @@ from flask import request
 from flask import jsonify
 
 from services.pricing_service import calculate_price
-from database.db import cursor, conn
+import database.db as db
 pricing_bp = Blueprint(
     "pricing",
     __name__
@@ -33,7 +33,8 @@ def calculate():
 )
 def get_hire_pricing():
 
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         """
         SELECT extension_fee
         FROM hire_pricing
@@ -42,7 +43,7 @@ def get_hire_pricing():
     )
 
     return jsonify(
-        cursor.fetchone()
+        db.cursor.fetchone()
     )
 
 @pricing_bp.route(
@@ -52,8 +53,9 @@ def get_hire_pricing():
 def update_hire_pricing():
 
     data=request.json
+    db.ensure_connection()
 
-    cursor.execute(
+    db.cursor.execute(
         """
         UPDATE hire_pricing
         SET extension_fee=%s
@@ -64,7 +66,7 @@ def update_hire_pricing():
         )
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":

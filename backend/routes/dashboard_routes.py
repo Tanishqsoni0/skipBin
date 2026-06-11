@@ -96,20 +96,96 @@ def customer_value():
     )
 
 @dashboard_bp.route("/reports/loyalty")
+
 def loyalty_report():
+
     db.ensure_connection()
+
     db.cursor.execute(
         """
-        SELECT COUNT(*)
-        total_rewards
-
-        FROM loyalty_rewards
+        SELECT
+            SUM(loyalty_count)
+            AS total_bins,
+            COUNT(*)
+            AS customers
+        FROM customers
         """
     )
 
-    return jsonify(
-        db.cursor.fetchone()
+    summary =db.cursor.fetchone()
+
+    db.cursor.execute(
+        """
+        SELECT
+            customer_id,
+            first_name,
+            last_name,
+            loyalty_count
+        FROM customers
+        ORDER BY loyalty_count DESC
+        LIMIT 5
+        """
     )
+
+    top_customers = db.cursor.fetchall()
+
+    db.cursor.execute("""
+    SELECT
+    COALESCE(
+    SUM(FLOOR(loyalty_count/7)),
+    0
+    ) AS rewards_issued
+    FROM customers
+    """)
+
+    rewards = db.cursor.fetchone()   
+    return jsonify({
+
+        "summary":
+        summary,
+
+        "top_customers":
+        top_customers,
+
+        "rewards_issued":
+        rewards["rewards_issued"]
+
+    })
+
+@dashboard_bp.route(
+"/reports/revenue-impact"
+)
+def revenue_impact():
+
+    db.ensure_connection()
+
+    db.cursor.execute(
+        """
+        SELECT
+
+        COALESCE(
+            SUM(discount_amount),
+            0
+        ) AS promotion_discount,
+
+        COALESCE(
+            SUM(loyalty_discount),
+            0
+        ) AS loyalty_discount
+
+        FROM bookings
+        """
+    )
+
+    data = db.cursor.fetchone()
+
+    data["total_impact"] = (
+        float(data["promotion_discount"])
+        +
+        float(data["loyalty_discount"])
+    )
+
+    return jsonify(data)
 
 @dashboard_bp.route("/dashboard/new-bookings")
 def new_bookings():
@@ -459,3 +535,25 @@ def dashboard_data():
         "completedJobs":completed_jobs,
         "collectionReminders":collection_reminders
     })
+
+@dashboard_bp.route(
+"/reports/promotions-impact"
+)
+def promotions_impact():
+
+    db.ensure_connection()
+
+    db.cursor.execute(
+        """
+        SELECT
+        COALESCE(
+        SUM(discount_amount),
+        0
+        ) total_discount
+        FROM bookings
+        """
+    )
+
+    return jsonify(
+        db.cursor.fetchone()
+    )

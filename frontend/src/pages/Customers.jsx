@@ -187,6 +187,10 @@ const Customers = () => {
 
               <th>Spend</th>
 
+              <th>Bins Hired</th>
+
+              <th>Loyalty Progress</th>
+
               <th>Actions</th>
 
             </tr>
@@ -222,7 +226,25 @@ const Customers = () => {
             c.total_spend || 0
           ).toFixed(2)}
         </td>
+          <td>
+  {c.loyalty_count}
+</td>
 
+<td>
+
+{
+c.bins_until_reward===0
+
+?
+
+"🎁 Next booking FREE"
+
+:
+
+`${c.bins_until_reward} more bins`
+}
+
+</td>
         <td>
           <div className="action-buttons">
           <button

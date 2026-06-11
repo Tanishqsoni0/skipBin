@@ -25,6 +25,10 @@ const Reports = () => {
   const [topCustomers,
   setTopCustomers] =
   useState([]);
+  
+  const [promotionImpact,
+setPromotionImpact] =
+useState({});
 
   const [customerValue,
   setCustomerValue] =
@@ -33,6 +37,8 @@ const Reports = () => {
   const [loyalty,
   setLoyalty] =
   useState({});
+    const [impact,setImpact] =
+useState({});
 
   useEffect(()=>{
 
@@ -65,6 +71,16 @@ const Reports = () => {
         "/reports/loyalty"
       );
 
+      const promoRes =
+await api.get(
+"/reports/promotions-impact"
+);
+
+const impactRes =
+await api.get(
+"/reports/revenue-impact"
+);
+
       setDashboard(
         dashboardRes.data
       );
@@ -80,6 +96,14 @@ const Reports = () => {
       setLoyalty(
         loyaltyRes.data
       );
+
+setPromotionImpact(
+promoRes.data
+);  
+
+setImpact(
+impactRes.data
+);
 
     }catch(err){
 
@@ -121,12 +145,46 @@ const Reports = () => {
         />
 
         <StartCard
-          title="Rewards Issued"
+          title="Total Bins Hired"
           value={
-            loyalty.total_rewards || 0
+            loyalty.summary?.total_bins || 0
           }
         />
 
+<StartCard
+ title="Rewards Issued"
+ value={
+   loyalty.rewards_issued || 0
+ }
+/>
+
+<StartCard
+  title="Discounts Given"
+  value={
+    `$${promotionImpact.total_discount || 0}`
+  }
+/>
+
+<StartCard
+title="Promotion Impact"
+value={
+`$${impact.promotion_discount || 0}`
+}
+/>
+
+<StartCard
+title="Loyalty Impact"
+value={
+`$${impact.loyalty_discount || 0}`
+}
+/>
+
+<StartCard
+title="Revenue Impact"
+value={
+`$${impact.total_impact || 0}`
+}
+/>
       </div>
 
       <br />
@@ -243,6 +301,7 @@ const Reports = () => {
         </table>
 
       </div>
+
 
     </DashboardLayout>
 

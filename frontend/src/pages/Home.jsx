@@ -19,6 +19,19 @@ const Home = () => {
 
       <HeroSection />
 
+      <div className="loyalty-banner">
+
+  <h2>
+    🎁 Customer Loyalty Reward
+  </h2>
+
+  <p>
+    Hire 6 bins and receive your
+    7th bin hire FREE for one week.
+  </p>
+
+</div>
+
       <StatsSection />
 
       <section className="bins-section">

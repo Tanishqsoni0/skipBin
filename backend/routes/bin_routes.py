@@ -1,23 +1,22 @@
 from flask import Blueprint, jsonify, request
-from database.db import cursor, conn
-
+import database.db as db
 bin_bp = Blueprint("bin", __name__)
 
 @bin_bp.route("/bins", methods=["GET"])
 def get_bins():
-
-    cursor.execute("SELECT * FROM bin_types")
-    bins = cursor.fetchall()
+    db.ensure_connection()
+    db.cursor.execute("SELECT * FROM bin_types")
+    bins = db.cursor.fetchall()
 
     return jsonify(bins)
 
 
 @bin_bp.route("/bins", methods=["POST"])
 def add_bin():
-
+    db.ensure_connection()
     data = request.json
 
-    cursor.execute(
+    db.cursor.execute(
         """
         INSERT INTO bin_types(size, base_price)
         VALUES(%s,%s)
@@ -28,7 +27,7 @@ def add_bin():
         )
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Bin added"
@@ -37,10 +36,10 @@ def add_bin():
 
 @bin_bp.route("/bins/<int:id>", methods=["PUT"])
 def update_bin(id):
-
+    db.ensure_connection()
     data = request.json
 
-    cursor.execute(
+    db.cursor.execute(
         """
         UPDATE bin_types
         SET size=%s,
@@ -54,7 +53,7 @@ def update_bin(id):
         )
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Bin updated"
@@ -63,8 +62,8 @@ def update_bin(id):
 
 @bin_bp.route("/bins/<int:id>", methods=["DELETE"])
 def delete_bin(id):
-
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         """
         DELETE FROM bin_types
         WHERE bin_id=%s
@@ -72,7 +71,7 @@ def delete_bin(id):
         (id,)
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Bin deleted"

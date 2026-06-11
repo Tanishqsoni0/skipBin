@@ -66,6 +66,7 @@ useEffect(() => {
       const res = await api.post(
         "/calculate-price",
         {
+          customer_id:customer?.customer_id,
           bin_id:Number(form.bin_id),
           waste_id:Number(form.waste_id),
           hire_weeks:Number(form.hire_weeks),
@@ -156,11 +157,10 @@ useEffect(() => {
 
       const res = await api.post("/bookings", payload);
 
-      setBookingSuccess(
-        `Booking confirmed!
-         Your bin will be collected on ${res.data.collection_date}. 
-         Total: $${res.data.total_amount}`
-      );
+      setBookingSuccess({
+  collection_date: res.data.collection_date,
+  total: pricing.total
+});
 
       // Reset only the fields the customer filled in
       setForm((prev) => ({
@@ -219,11 +219,29 @@ useEffect(() => {
     Fast Delivery • Transparent Pricing • Professional Service
   </p>
 
-  {bookingSuccess && (
-    <div className="booking-success-msg">
-      {bookingSuccess}
-    </div>
-  )}
+ {bookingSuccess && (
+  <div className="booking-success-msg">
+
+    <strong>
+      Booking Confirmed 🎉
+    </strong>
+  <br/>
+    Your skip bin has been successfully booked.
+
+    <br />
+
+    📅 Collection Date:
+    {" "}
+    {bookingSuccess.collection_date}
+
+    <br />
+
+    💰 Total Amount:
+    {" "}
+    ${bookingSuccess.total}
+
+  </div>
+)}
 
   {bookingError && (
     <div className="booking-error-msg">
@@ -409,11 +427,28 @@ useEffect(() => {
         {/* RIGHT SIDE */}
 
         <div className="summary-card">
+        <div className="promo-banner">
 
+  🎁 Every 7th Bin Hire FREE
+
+</div>
+{
+pricing?.free_bin &&
+
+<div className="success-banner">
+🎉 Loyalty Reward Applied
+
+<br/>
+
+This customer qualifies for a FREE bin hire.
+
+Only waste, delivery and extension charges apply.
+</div>
+}
   <h2>
     ORDER SUMMARY
   </h2>
-
+        
   <div className="summary-row">
   <span>Bin Price</span>
   <span>${pricing.base_price}</span>
@@ -439,6 +474,11 @@ useEffect(() => {
 <div className="summary-row">
   <span>Delivery Charge</span>
   <span>${pricing.delivery_charge || 0}</span>
+</div>
+
+<div className="summary-row">
+  <span>Discount</span>
+  <span>-${pricing.discount || 0}</span>
 </div>
 
 <div className="summary-total">

@@ -1,16 +1,15 @@
 from flask import Blueprint, jsonify, request
-from database.db import cursor, conn
-
+import database.db as db
 waste_bp = Blueprint("waste", __name__)
 
 @waste_bp.route("/waste-types", methods=["GET"])
 def get_waste():
-
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         "SELECT * FROM waste_types"
     )
 
-    waste = cursor.fetchall()
+    waste = db.cursor.fetchall()
 
     return jsonify(waste)
 
@@ -20,7 +19,7 @@ def add_waste():
 
     data = request.json
 
-    cursor.execute(
+    db.cursor.execute(
         """
         INSERT INTO waste_types(
         waste_name,
@@ -34,17 +33,17 @@ def add_waste():
         )
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Waste type added"
     })
 @waste_bp.route("/waste-types/<int:id>", methods=["PUT"])
 def update_waste_type(id):
-
+    db.ensure_connection()      
     data = request.json
 
-    cursor.execute(
+    db.cursor.execute(
         """
         UPDATE waste_types
         SET
@@ -59,7 +58,7 @@ def update_waste_type(id):
         )
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Waste Type Updated"
@@ -67,8 +66,8 @@ def update_waste_type(id):
 
 @waste_bp.route("/waste-types/<int:id>", methods=["DELETE"])
 def delete_waste_type(id):
-
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         """
         DELETE FROM waste_types
         WHERE waste_id=%s
@@ -76,7 +75,7 @@ def delete_waste_type(id):
         (id,)
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Waste Type Deleted"

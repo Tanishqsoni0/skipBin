@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from database.db import conn, cursor
-
+import database.db as db
 contact_bp = Blueprint(
     "contact",
     __name__
@@ -21,7 +20,8 @@ def send_message():
 
     try:
 
-        cursor.execute(
+        db.ensure_connection()
+        db.cursor.execute(
             """
             INSERT INTO contact_messages
             (
@@ -43,7 +43,7 @@ def send_message():
             )
         )
 
-        conn.commit()
+        db.conn.commit()
 
         return jsonify({
             "message":

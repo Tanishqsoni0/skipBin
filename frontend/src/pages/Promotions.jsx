@@ -1,30 +1,20 @@
-import React, {
-  useEffect,
-  useState
-} from "react";
+import React,{useEffect,useState} from "react";
+import DashboardLayout from "../layouts/DashboardLayout";
+import api from "../services/api";
 
-import DashboardLayout
-from "../layouts/DashboardLayout";
+const Promotions=()=>{
 
-import api
-from "../services/api";
+  const [promotions,setPromotions]=useState([]);
 
-const Promotions = () => {
+  const [editing,setEditing]=useState(null);
 
-  const [promotions,
-  setPromotions] =
-  useState([]);
-
-  const [form,
-  setForm] =
-  useState({
-
+  const [form,setForm]=useState({
     promo_name:"",
     discount_type:"PERCENTAGE",
     discount_value:"",
     start_date:"",
-    end_date:""
-
+    end_date:"",
+    active:true
   });
 
   useEffect(()=>{
@@ -33,21 +23,16 @@ const Promotions = () => {
 
   },[]);
 
-  const fetchPromotions =
-  async()=>{
+  const fetchPromotions=async()=>{
 
     try{
 
-      const res =
-      await api.get(
-        "/promotions"
-      );
+      const res=await api.get("/promotions");
 
-      setPromotions(
-        res.data
-      );
+      setPromotions(res.data);
 
-    }catch(err){
+    }
+    catch(err){
 
       console.log(err);
 
@@ -55,8 +40,7 @@ const Promotions = () => {
 
   };
 
-  const handleChange =
-  (e)=>{
+  const handleChange=(e)=>{
 
     setForm({
 
@@ -69,8 +53,22 @@ const Promotions = () => {
 
   };
 
-  const addPromotion =
-  async(e)=>{
+  const resetForm=()=>{
+
+    setForm({
+
+      promo_name:"",
+      discount_type:"PERCENTAGE",
+      discount_value:"",
+      start_date:"",
+      end_date:"",
+      active:true
+
+    });
+
+  };
+
+  const addPromotion=async(e)=>{
 
     e.preventDefault();
 
@@ -81,19 +79,91 @@ const Promotions = () => {
         form
       );
 
-      setForm({
-
-        promo_name:"",
-        discount_type:"PERCENTAGE",
-        discount_value:"",
-        start_date:"",
-        end_date:""
-
-      });
+      resetForm();
 
       fetchPromotions();
 
-    }catch(err){
+    }
+    catch(err){
+
+      console.log(err);
+
+    }
+
+  };
+
+  const editPromotion=(item)=>{
+
+    setEditing(
+      item.promo_id
+    );
+
+    setForm({
+
+      promo_name:
+      item.promo_name,
+
+      discount_type:
+      item.discount_type,
+
+      discount_value:
+      item.discount_value,
+
+      start_date:
+      item.start_date?.split("T")[0],
+
+      end_date:
+      item.end_date?.split("T")[0],
+
+      active:
+      item.active
+
+    });
+
+  };
+
+  const updatePromotion=async(id)=>{
+
+    try{
+
+      await api.put(
+        `/promotions/${id}`,
+        form
+      );
+
+      setEditing(null);
+
+      resetForm();
+
+      fetchPromotions();
+
+    }
+    catch(err){
+
+      console.log(err);
+
+    }
+
+  };
+
+  const deletePromotion=async(id)=>{
+
+    if(
+      !window.confirm(
+        "Delete Promotion?"
+      )
+    ) return;
+
+    try{
+
+      await api.delete(
+        `/promotions/${id}`
+      );
+
+      fetchPromotions();
+
+    }
+    catch(err){
 
       console.log(err);
 
@@ -105,141 +175,111 @@ const Promotions = () => {
 
     <DashboardLayout>
 
-      <h1
-      className="page-title"
-      >
-        Promotions
-      </h1>
+      <div className="page-header">
 
-      <div
-      className="stat-card"
-      >
+        <h1>
+          Promotions
+        </h1>
 
-        <h3>
+        <p>
+          Manage discounts, offers and seasonal promotions.
+        </p>
+
+      </div>
+
+      <div className="pricing-card">
+
+        <h2 className="pricing-card-title">
           Create Promotion
-        </h3>
-
-        <br/>
+        </h2>
 
         <form
-        onSubmit={
-          addPromotion
-        }
+          onSubmit={addPromotion}
+          className="pricing-form"
         >
 
           <input
             type="text"
             name="promo_name"
-            placeholder="Summer Sale"
-            value={
-              form.promo_name
-            }
-            onChange={
-              handleChange
-            }
+            placeholder="Promotion Name"
+            value={form.promo_name}
+            onChange={handleChange}
+            required
           />
-
-          <br/><br/>
 
           <select
             name="discount_type"
-            value={
-              form.discount_type
-            }
-            onChange={
-              handleChange
-            }
+            value={form.discount_type}
+            onChange={handleChange}
           >
 
-            <option
-            value="PERCENTAGE"
-            >
+            <option value="PERCENTAGE">
               Percentage
             </option>
 
-            <option
-            value="FIXED"
-            >
+            <option value="FIXED">
               Fixed Amount
             </option>
 
           </select>
 
-          <br/><br/>
-
           <input
             type="number"
             name="discount_value"
             placeholder="Discount Value"
-            value={
-              form.discount_value
-            }
-            onChange={
-              handleChange
-            }
+            value={form.discount_value}
+            onChange={handleChange}
+            required
           />
-
-          <br/><br/>
 
           <input
             type="date"
             name="start_date"
-            value={
-              form.start_date
-            }
-            onChange={
-              handleChange
-            }
+            value={form.start_date}
+            onChange={handleChange}
+            required
           />
-
-          <br/><br/>
 
           <input
             type="date"
             name="end_date"
-            value={
-              form.end_date
-            }
-            onChange={
-              handleChange
-            }
+            value={form.end_date}
+            onChange={handleChange}
+            required
           />
 
-          <br/><br/>
-
-          <button
-          type="submit"
-          >
-            Create Promotion
+          <button type="submit">
+            Add Promotion
           </button>
 
         </form>
 
       </div>
 
-      <br/>
+      <div className="pricing-table-card">
 
-      <div
-      className="table-container"
-      >
+        <div className="table-header">
 
-        <table>
+          <h2>
+            Active Promotions
+          </h2>
+
+        </div>
+
+        <table className="pricing-table">
 
           <thead>
 
             <tr>
 
               <th>ID</th>
-
               <th>Name</th>
-
               <th>Type</th>
-
               <th>Value</th>
-
               <th>Start</th>
-
               <th>End</th>
+              <th>Status</th>
+              <th>Actions</th>
 
             </tr>
 
@@ -248,45 +288,217 @@ const Promotions = () => {
           <tbody>
 
             {
-              promotions.map(
-              (promo)=>(
+              promotions.map(item=>(
 
                 <tr
-                key={
-                  promo.promo_id
-                }
+                  key={item.promo_id}
                 >
 
                   <td>
-                    {promo.promo_id}
+                    {item.promo_id}
                   </td>
 
                   <td>
-                    {promo.promo_name}
-                  </td>
 
-                  <td>
                     {
-                      promo.discount_type
+                      editing===item.promo_id ?
+
+                      <input
+                        name="promo_name"
+                        value={form.promo_name}
+                        onChange={handleChange}
+                      />
+
+                      :
+
+                      item.promo_name
                     }
+
                   </td>
 
                   <td>
+
                     {
-                      promo.discount_value
+                      editing===item.promo_id ?
+
+                      <select
+                        name="discount_type"
+                        value={form.discount_type}
+                        onChange={handleChange}
+                      >
+
+                        <option value="PERCENTAGE">
+                          Percentage
+                        </option>
+
+                        <option value="FIXED">
+                          Fixed
+                        </option>
+
+                      </select>
+
+                      :
+
+                      item.discount_type
                     }
+
                   </td>
 
                   <td>
+
                     {
-                      promo.start_date
+                      editing===item.promo_id ?
+
+                      <input
+                        type="number"
+                        name="discount_value"
+                        value={form.discount_value}
+                        onChange={handleChange}
+                      />
+
+                      :
+
+                      item.discount_type==="PERCENTAGE"
+
+                      ?
+
+                      `${item.discount_value}%`
+
+                      :
+
+                      `$${item.discount_value}`
                     }
+
                   </td>
 
                   <td>
+
                     {
-                      promo.end_date
+                      editing===item.promo_id ?
+
+                      <input
+                        type="date"
+                        name="start_date"
+                        value={form.start_date}
+                        onChange={handleChange}
+                      />
+
+                      :
+
+                      new Date(item.start_date)
+                      .toLocaleDateString(
+                        "en-GB",
+                        {
+                          day:"2-digit",
+                          month:"short",
+                          year:"numeric"
+                        }
+                      )
                     }
+
+                  </td>
+
+                  <td>
+
+                    {
+                      editing===item.promo_id ?
+
+                      <input
+                        type="date"
+                        name="end_date"
+                        value={form.end_date}
+                        onChange={handleChange}
+                      />
+
+                      :
+
+                      new Date(item.end_date)
+                      .toLocaleDateString(
+                        "en-GB",
+                        {
+                          day:"2-digit",
+                          month:"short",
+                          year:"numeric"
+                        }
+                      )
+                    }
+
+                  </td>
+
+                  <td>
+
+                    {
+                      editing===item.promo_id ?
+
+                      <select
+                        value={form.active}
+                        onChange={(e)=>
+                          setForm({
+                            ...form,
+                            active:
+                            e.target.value==="true"
+                          })
+                        }
+                      >
+
+                        <option value="true">
+                          Active
+                        </option>
+
+                        <option value="false">
+                          Inactive
+                        </option>
+
+                      </select>
+
+                      :
+
+                      item.active
+                      ? "Active"
+                      : "Inactive"
+                    }
+
+                  </td>
+
+                  <td>
+
+                    {
+                      editing===item.promo_id ?
+
+                      <button
+                        className="save-btn"
+                        onClick={()=>
+                          updatePromotion(
+                            item.promo_id
+                          )
+                        }
+                      >
+                        Save
+                      </button>
+
+                      :
+
+                      <button
+                        className="edit-btn"
+                        onClick={()=>
+                          editPromotion(item)
+                        }
+                      >
+                        Edit
+                      </button>
+                    }
+
+                    <button
+                      className="delete-btn"
+                      onClick={()=>
+                        deletePromotion(
+                          item.promo_id
+                        )
+                      }
+                    >
+                      Delete
+                    </button>
+
                   </td>
 
                 </tr>

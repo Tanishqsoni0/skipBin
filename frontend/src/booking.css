@@ -369,39 +369,63 @@
 }
 
 .booking-success-msg{
+  background: linear-gradient(
+    135deg,
+    rgba(16,185,129,.18),
+    rgba(5,150,105,.10)
+  );
 
-  background:
-  rgba(16,185,129,.15);
+  border: 1px solid rgba(16,185,129,.4);
 
-  border:
-  1px solid rgba(16,185,129,.4);
+  color: #ecfdf5;
 
-  color:#34d399;
+  padding: 22px;
 
-  padding:16px;
+  border-radius: 18px;
 
-  border-radius:16px;
+  margin-bottom: 24px;
 
-  margin-bottom:20px;
+  box-shadow:
+    0 8px 25px rgba(16,185,129,.15);
+
+  font-size: 18px;
+
+  line-height: 1.7;
+
+  position: relative;
+
+  overflow: hidden;
 }
+
 
 .booking-error-msg{
+  background: linear-gradient(
+    135deg,
+    rgba(220,38,38,.18),
+    rgba(185,28,28,.10)
+  );
 
-  background:
-  rgba(239,68,68,.15);
+  border: 1px solid rgba(220,38,38,.4);
 
-  border:
-  1px solid rgba(239,68,68,.4);
+  color: #fef2f2;
 
-  color:#f87171;
+  padding: 22px;
 
-  padding:16px;
+  border-radius: 18px;
 
-  border-radius:16px;
+  margin-bottom: 24px;
 
-  margin-bottom:20px;
+  box-shadow:
+    0 8px 25px rgba(220,38,38,.15);
+
+  font-size: 18px;
+
+  line-height: 1.7;
+
+  position: relative;
+
+  overflow: hidden;
 }
-
 @media(max-width:1000px){
 
   .booking-wrapper{
@@ -631,4 +655,54 @@
 
 .calculate-btn:hover{
   opacity:.9;
+}
+
+.promo-banner{
+
+  background:linear-gradient(
+    135deg,
+    #3b82f6,
+    #8b5cf6
+  );
+
+  color:white;
+
+  padding:14px 20px;
+
+  border-radius:12px;
+
+  font-size:16px;
+
+  font-weight:600;
+
+  text-align:center;
+
+  margin-bottom:15px;
+
+}
+
+.success-banner{
+
+  background:linear-gradient(
+    135deg,
+    #3b82f6,
+    #8b5cf6
+  );
+
+  color:white;
+
+  padding:18px;
+
+  border-radius:12px;
+
+  margin-bottom:20px;
+
+  text-align:center;
+
+  font-size:15px;
+
+  line-height:1.6;
+
+  font-weight:500;
+
 }

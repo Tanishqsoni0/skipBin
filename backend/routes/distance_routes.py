@@ -1,6 +1,5 @@
 from flask import Blueprint,request,jsonify
-from database.db import cursor,conn,ensure_connection
-
+import database.db as db
 distance_bp = Blueprint(
     "distance_bp",
     __name__
@@ -12,15 +11,15 @@ distance_bp = Blueprint(
 )
 def get_distance_charges():
 
-    ensure_connection()
-    cursor.execute("""
+    db.ensure_connection()
+    db.cursor.execute("""
         SELECT *
         FROM distance_charges
         ORDER BY min_km
     """)
 
     return jsonify(
-        cursor.fetchall()
+        db.cursor.fetchall()
     )
 
 @distance_bp.route(
@@ -29,10 +28,10 @@ def get_distance_charges():
 )
 def add_distance_charge():
 
-    ensure_connection()
+    db.ensure_connection()
     data = request.json
 
-    cursor.execute(
+    db.cursor.execute(
         """
         INSERT INTO distance_charges
         (
@@ -50,7 +49,7 @@ def add_distance_charge():
         )
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Added"
@@ -62,10 +61,10 @@ def add_distance_charge():
 )
 def update_distance_charge(id):
 
-    ensure_connection()
+    db.ensure_connection()
     data = request.json
 
-    cursor.execute(
+    db.cursor.execute(
         """
         UPDATE distance_charges
         SET
@@ -82,7 +81,7 @@ def update_distance_charge(id):
         )
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Updated"
@@ -94,8 +93,8 @@ def update_distance_charge(id):
 )
 def delete_distance_charge(id):
 
-    ensure_connection()
-    cursor.execute(
+    db.ensure_connection()
+    db.cursor.execute(
         """
         DELETE FROM distance_charges
         WHERE distance_id=%s
@@ -103,7 +102,7 @@ def delete_distance_charge(id):
         (id,)
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Deleted"

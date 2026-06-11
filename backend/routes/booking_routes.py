@@ -24,10 +24,10 @@ def get_bookings():
     SELECT
         b.booking_id,
         CONCAT(
-    c.first_name,
-    ' ',
-    c.last_name
-) AS full_name,
+        c.first_name,
+        ' ',
+        c.last_name
+        ) AS full_name,
         bt.size,
         wt.waste_name,
         b.delivery_date,
@@ -77,9 +77,11 @@ def create_booking():
     ).date()
 
     pricing = calculate_price(
+        customer_id,
         bin_id,
         waste_id,
-        hire_weeks
+        hire_weeks,
+        delivery_address
     )
 
     collection_date = (
@@ -101,13 +103,15 @@ def create_booking():
         total_amount,
         delivery_charge,
         waste_charge,
-        discount_amount
+        discount_amount,
+        promo_id,
+        loyalty_discount
     )
     VALUES
     (
         %s,%s,%s,%s,%s,%s,%s,
         'NEW',
-        %s,%s,%s,%s
+        %s,%s,%s,%s,%s,%s
     )
     """
 
@@ -120,14 +124,26 @@ def create_booking():
         collection_date,
         hire_weeks,
         pricing["total"],
-        0,
+        pricing["delivery_charge"],
         pricing["waste_charge"],
-        0
+        pricing["discount"],
+        pricing["promo_id"],
+        pricing["loyalty_discount"]
     )
 
     db.cursor.execute(
         query,
         values
+    )
+
+    db.cursor.execute(
+    """
+    UPDATE customers
+    SET loyalty_count =
+    loyalty_count + 1
+    WHERE customer_id=%s
+    """,
+    (customer_id,)
     )
 
     db.conn.commit()
@@ -142,8 +158,9 @@ def create_booking():
 def get_price():
     db.ensure_connection()
     data=request.json
-
+    customer_id = data.get("customer_id",0)
     result=calculate_price(
+        int(customer_id) if customer_id else 0,
         int(data["bin_id"]),
         int(data["waste_id"]),
         int(data["hire_weeks"]),

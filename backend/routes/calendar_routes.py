@@ -1,8 +1,7 @@
 from flask import Blueprint
 from flask import jsonify
 
-from database.db import cursor
-
+import database.db as db
 calendar_bp = Blueprint(
     "calendar",
     __name__
@@ -11,7 +10,8 @@ calendar_bp = Blueprint(
 @calendar_bp.route("/calendar")
 def calendar_events():
 
-    cursor.execute("""
+    db.ensure_connection()
+    db.cursor.execute("""
     SELECT
 
         b.booking_id,
@@ -40,5 +40,5 @@ def calendar_events():
     """)
 
     return jsonify(
-        cursor.fetchall()
+        db.cursor.fetchall()
     )

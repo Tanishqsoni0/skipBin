@@ -66,6 +66,7 @@ def calculate_distance(
     )
 
 def calculate_price(
+    customer_id,
     bin_id,
     waste_id,
     hire_weeks,
@@ -111,6 +112,36 @@ def calculate_price(
     waste_charge = float(
         waste_data["extra_charge"]
     )
+    loyalty_count = 0
+
+    if customer_id:
+
+        cursor.execute(
+        """
+        SELECT loyalty_count
+        FROM customers
+        WHERE customer_id=%s
+        """,
+        (customer_id,)
+        )
+
+        customer = cursor.fetchone()
+
+        loyalty_count = (
+            customer["loyalty_count"]
+            if customer
+            else 0
+        )
+    free_bin = False
+    loyalty_discount = 0
+
+    if (loyalty_count + 1) % 7 == 0:
+
+        free_bin = True
+
+        loyalty_discount = base_price
+
+        base_price = 0
 
     extension_fee = max(
         0,
@@ -151,11 +182,55 @@ def calculate_price(
         if distance_row
         else 0
     )
-    total = (
+
+    discount = 0
+    promo_id = None
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM promotions
+        WHERE active=1
+        AND CURDATE()
+        BETWEEN start_date
+        AND end_date
+        LIMIT 1
+        """
+    )
+
+    promotion = cursor.fetchone()
+
+    subtotal = (
         base_price
         + waste_charge
         + extension_fee
         + delivery_charge
+    )
+
+    if promotion:
+
+        promo_id = promotion["promo_id"]
+
+        if promotion["discount_type"]=="PERCENTAGE":
+
+            discount = (
+                subtotal
+                *
+                float(
+                    promotion["discount_value"]
+                )
+                /100
+            )
+
+        else:
+
+            discount = float(
+                promotion["discount_value"]
+            )
+
+    total = max(
+        0,
+        subtotal-discount
     )
 
     return {
@@ -175,7 +250,22 @@ def calculate_price(
         "distance_km":
         round(distance_km, 2),
 
+        "subtotal":
+        subtotal,
+
+        "discount":
+        round(discount, 2),
+
+        "promo_id":
+        promo_id,
+
+        "free_bin":
+        free_bin,
+
+        "loyalty_discount":
+        loyalty_discount,
+
         "total":
-        total
+        round(total, 2)
 
     }

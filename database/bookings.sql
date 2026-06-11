@@ -40,3 +40,9 @@ ADD COLUMN waste_charge DECIMAL(10,2) DEFAULT 0;
 
 ALTER TABLE bookings
 ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0;
+
+ALTER TABLE bookings
+ADD COLUMN promo_id INT NULL;
+
+ALTER TABLE bookings
+ADD COLUMN loyalty_discount DECIMAL(10,2) DEFAULT 0;

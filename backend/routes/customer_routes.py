@@ -52,9 +52,20 @@ def get_customers():
 
     db.cursor.execute(query)
 
-    return jsonify(
-        db.cursor.fetchall()
-    )
+    customers = db.cursor.fetchall()
+
+    for c in customers:
+
+        count = c["loyalty_count"]
+
+        remaining = 6 - (count % 7)
+
+        if remaining < 0:
+            remaining = 6
+
+        c["bins_until_reward"] = remaining
+
+    return jsonify(customers)
 
 # Get customer by id
 @customer_bp.route("/customers/<int:id>", methods=["GET"])
@@ -228,28 +239,45 @@ def history(id):
         db.cursor.fetchall()
     )
 
-@customer_bp.route("/customers/<int:id>/loyalty")
-def loyalty_progress(id):
+@customer_bp.route(
+"/customers/<int:customer_id>/loyalty"
+)
+def customer_loyalty(customer_id):
+
     db.ensure_connection()
+
     db.cursor.execute(
         """
-        SELECT COUNT(*)
-        total
-        FROM bookings
+        SELECT
+        loyalty_count
+        FROM customers
         WHERE customer_id=%s
-        AND status='COMPLETED'
         """,
-        (id,)
+        (customer_id,)
     )
 
-    total = db.cursor.fetchone()["total"]
+    customer = db.cursor.fetchone()
 
-    progress = total % 7
+    loyalty_count = customer["loyalty_count"]
+
+    progress = loyalty_count % 7
+
+    remaining = 7 - progress
+
+    if progress == 0 and loyalty_count > 0:
+        remaining = 7
 
     return jsonify({
-        "completed":total,
-        "progress":progress,
-        "target":7
+
+        "bins_hired":
+        loyalty_count,
+
+        "progress":
+        progress,
+
+        "remaining":
+        remaining
+
     })
 
 @customer_bp.route(

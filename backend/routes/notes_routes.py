@@ -2,10 +2,7 @@ from flask import Blueprint
 from flask import request
 from flask import jsonify
 
-from database.db import (
-    cursor,
-    conn
-)
+import database.db as db
 
 notes_bp = Blueprint(
     "notes",
@@ -14,10 +11,10 @@ notes_bp = Blueprint(
 
 @notes_bp.route("/customers/<int:id>/notes",methods=["POST"])
 def add_note(id):
-
+    db.ensure_connection()
     data=request.json
 
-    cursor.execute(
+    db.cursor.execute(
         """
         INSERT INTO customer_notes(
         customer_id,
@@ -31,7 +28,7 @@ def add_note(id):
         )
     )
 
-    conn.commit()
+    db.conn.commit()
 
     return jsonify({
         "message":"Note added"

@@ -52,3 +52,6 @@ DROP COLUMN full_name;
 
 DESCRIBE customers;
 SHOW COLUMNS FROM customers;
+
+ALTER TABLE customers
+ADD COLUMN total_bins_hired INT DEFAULT 0;
