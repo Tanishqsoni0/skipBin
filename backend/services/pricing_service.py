@@ -1,7 +1,7 @@
 # services/pricing_service.py
 import requests
 from math import radians, sin, cos, sqrt, atan2
-from database.db import ensure_connection
+from database.db import get_pool_connection
 
 WAREHOUSE_LAT = -33.8688
 WAREHOUSE_LON = 151.2093
@@ -47,7 +47,7 @@ def calculate_price(
     delivery_address="",
 ):
     # ── Each call gets its own connection + cursor from the pool ─────────────
-    conn, cursor = ensure_connection()
+    conn, cursor = get_pool_connection()
 
     try:
         # Bin price
