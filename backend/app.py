@@ -18,7 +18,7 @@ from routes.admin_auth_routes import admin_auth_bp
 from routes.contact_routes import contact_bp
 from routes.distance_routes import distance_bp
 from routes.calendar_routes import calendar_bp
-from routes.paypal_routes import paypal_bp          # ← NEW
+from routes.paypal_routes import paypal_bp          
 
 app = Flask(__name__)
 
@@ -27,7 +27,7 @@ CORS(app, resources={r"/*": {"origins": [
     "http://127.0.0.1:3000",
 ]}})
 
-app.config["JWT_SECRET_KEY"] = "skipbins_secret"
+app.config["JWT_SECRET_KEY"] = "skipbin_super_secret_key_2026_project_12345"
 jwt = JWTManager(app)
 
 @app.route("/")

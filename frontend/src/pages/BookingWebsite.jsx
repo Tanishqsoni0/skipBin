@@ -14,7 +14,8 @@ import "../booking.css";
 // Read from your single .env file in skipbins/
 const PAYPAL_CLIENT_ID = process.env.REACT_APP_PAYPAL_CLIENT_ID;
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-
+console.log("PAYPAL_CLIENT_ID =", process.env.REACT_APP_PAYPAL_CLIENT_ID);
+console.log("API_URL =", API_URL);
 const BookingWebsite = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -56,35 +57,6 @@ const BookingWebsite = () => {
     }
   }, [selectedBin]);
 
-  useEffect(() => {
-    if (!form.bin_id || !form.waste_id) return;
-
-    const fetchPrice = async () => {
-      try {
-        const res = await api.post("/calculate-price", {
-          customer_id: customer?.customer_id,
-          bin_id: Number(form.bin_id),
-          waste_id: Number(form.waste_id),
-          hire_weeks: Number(form.hire_weeks),
-          delivery_address: form.delivery_address,
-        });
-
-        setPricing(res.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    // ── Pre-select bin from URL param ─────────────────────────────────────────
-    
-    fetchPrice();
-  }, [
-    form.bin_id,
-    form.waste_id,
-    form.hire_weeks,
-    form.delivery_address,
-    customer,
-  ]);
 
   // ── Auth check + pre-fill ─────────────────────────────────────────────────
   useEffect(() => {
@@ -116,7 +88,7 @@ const BookingWebsite = () => {
   useEffect(() => {
     if (!form.bin_id || !form.waste_id) return;
     fetchPrice();
-  }, [form.bin_id, form.waste_id, form.hire_weeks]);
+  }, [form.bin_id, form.waste_id, form.hire_weeks, form.delivery_address, customer]);
 
   // ── Load PayPal SDK when on payment step ──────────────────────────────────
   useEffect(() => {
@@ -134,21 +106,29 @@ const BookingWebsite = () => {
   }, [step, paypalOrderId]);
 
   const loadData = async () => {
-    try {
-      const [binsRes, wasteRes] = await Promise.all([
-        api.get("/bins"),
-        api.get("/waste-types"),
-      ]);
-      setBins(binsRes.data);
-      setWasteTypes(wasteRes.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+
+
+    const binsRes = await api.get("/bins");
+
+
+    const wasteRes = await api.get("/waste-types");
+
+
+    setBins(binsRes.data);
+    setWasteTypes(wasteRes.data);
+
+  } catch (err) {
+
+    console.log(err);
+
+  }
+};
 
   const fetchPrice = async () => {
     try {
       const res = await api.post("/calculate-price", {
+        customer_id: customer?.customer_id,
         bin_id: Number(form.bin_id),
         waste_id: Number(form.waste_id),
         hire_weeks: Number(form.hire_weeks),
@@ -402,7 +382,7 @@ const BookingWebsite = () => {
               </p>
 
               {bookingError && (
-                <div className="booking-error-msg">⚠️ {bookingError}</div>
+                <div className="booking-error-msg"> {bookingError}</div>
               )}
 
               <div
@@ -430,12 +410,11 @@ const BookingWebsite = () => {
                   <span>Delivery Charge</span>
                   <span>${pricing.delivery_charge || 0}</span>
                 </div>
-                {loyaltyDiscount > 0 && (
-                  <div className="summary-row" style={{ color: "#34d399" }}>
-                    <span>🎁 Loyalty Reward (7th Bin Free!)</span>
-                    <span>-${loyaltyDiscount.toFixed(2)}</span>
-                  </div>
-                )}
+                
+            <div className="summary-row">
+              <span>Discount</span>
+              <span>-${pricing.discount || 0}</span>
+            </div>
                 <div className="summary-total">
                   <h1>
                     $
@@ -479,7 +458,7 @@ const BookingWebsite = () => {
             </p>
 
             {bookingError && (
-              <div className="booking-error-msg">⚠️ {bookingError}</div>
+              <div className="booking-error-msg"> {bookingError}</div>
             )}
 
             <form id="bookingForm" onSubmit={handleCompleteBooking}>
@@ -534,14 +513,6 @@ const BookingWebsite = () => {
                   required
                 />
                 <br />
-                <button
-                  type="button"
-                  className="calculate-btn"
-                  onClick={fetchPrice}
-                >
-                  Calculate Delivery Charge
-                </button>
-                <br />
                 <br />
                 <h3>Delivery Date</h3>
                 <input
@@ -561,7 +532,7 @@ const BookingWebsite = () => {
                       key={week}
                       type="button"
                       className={
-                        form.hire_weeks == week
+                        form.hire_weeks === week
                           ? "duration-btn active"
                           : "duration-btn"
                       }
@@ -577,16 +548,30 @@ const BookingWebsite = () => {
 
           {/* RIGHT SIDE */}
           <div className="summary-card">
-            <div className="promo-banner">🎁 Every 7th Bin Hire FREE</div>
+            {
+pricing?.free_bin && (
 
-            {pricing?.free_bin && (
-              <div className="success-banner">
-                🎉 Loyalty Reward Applied
-                <br />
-                This customer qualifies for a FREE bin hire. Only waste,
-                delivery and extension charges apply.
-              </div>
-            )}
+<div className="success-banner">
+🎉 Loyalty Reward Applied
+
+<br/>
+
+You are qualified for a FREE bin hire.
+<br/>
+Only waste, delivery and extension charges apply.
+
+</div>
+)}
+{
+  !pricing?.free_bin && (
+
+<div className="promo-banner">
+
+  🎁 Every 7th Bin Hire FREE
+
+</div>
+  )
+}
 
             <h2>ORDER SUMMARY</h2>
             <div className="summary-row">
@@ -634,7 +619,7 @@ const BookingWebsite = () => {
                   <div
                     className="loyalty-fill"
                     style={{
-                      width: `${((customer.loyalty_count % 7) / 7) * 100}%`,
+                      width: `${((customer.loyalty_count || 0) % 7) / 7 * 100}%`,
                     }}
                   />
                 </div>
