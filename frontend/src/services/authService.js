@@ -154,3 +154,42 @@ export async function logout() {
   clearTokens();
   invalidateMeCache(); // clear cache on logout
 }
+
+export async function forgotPassword(email) {
+  const { ok, data } = await apiFetch("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+
+  return {
+    success: ok,
+    message: data.message,
+    error: data.error,
+  };
+}
+
+export async function verifyOtp(email, otp) {
+  const { ok, data } = await apiFetch("/api/auth/verify-otp", {
+    method: "POST",
+    body: JSON.stringify({ email, otp }),
+  });
+
+  return {
+    success: ok,
+    message: data.message,
+    error: data.error,
+  };
+}
+
+export async function resetPassword(email, password) {
+  const { ok, data } = await apiFetch("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+  return {
+    success: ok,
+    message: data.message,
+    error: data.error,
+  };
+}

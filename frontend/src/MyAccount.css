@@ -1,0 +1,363 @@
+/* ── MyAccount.css ─────────────────────────────────────────────────────────── */
+
+/* Page wrapper */
+.account-page {
+    min-height: 100vh;
+    background: #0d1b2a;
+    color: #ffffff;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding-bottom: 60px;
+}
+
+/* ── Top nav ── */
+.account-nav {
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 60px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.account-nav-brand {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0d1b2a;
+    text-decoration: none;
+}
+
+.account-nav-back {
+    font-size: 14px;
+    color: #0d1b2a;
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.account-nav-back:hover {
+    opacity: 1;
+}
+
+/* ── Hero strip ── */
+.account-hero {
+    background: #162436;
+    border-bottom: 1px solid #1e3148;
+    padding: 36px 40px 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.account-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #f5a623;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0d1b2a;
+    flex-shrink: 0;
+}
+
+.account-hero-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.account-hero-email {
+    font-size: 14px;
+    color: #8a9bb0;
+}
+
+/* ── Body layout ── */
+.account-body {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 32px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Shared card base ── */
+.account-card {
+    background: #162436;
+    border: 1px solid #1e3148;
+    border-radius: 12px;
+    padding: 24px 28px;
+}
+
+.account-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f5a623;
+    margin-bottom: 16px;
+}
+
+/* ── Loyalty card ── */
+.loyalty-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.loyalty-label {
+    font-size: 15px;
+    color: #8a9bb0;
+}
+
+.loyalty-value {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.loyalty-value.amber {
+    color: #f5a623;
+}
+
+.loyalty-track {
+    height: 10px;
+    background: #1e3148;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.loyalty-fill {
+    height: 100%;
+    background: #f5a623;
+    border-radius: 999px;
+    transition: width 0.6s ease;
+}
+
+.loyalty-note {
+    font-size: 13px;
+    color: #8a9bb0;
+}
+
+.loyalty-free-msg {
+    font-size: 13px;
+    color: #f5a623;
+    margin-top: 8px;
+}
+
+/* ── Bookings link card ── */
+.account-bookings-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #162436;
+    border: 1px solid #1e3148;
+    border-radius: 12px;
+    padding: 20px 28px;
+    text-decoration: none;
+    color: #ffffff;
+    transition: border-color 0.2s;
+}
+
+.account-bookings-link:hover {
+    border-color: #f5a623;
+}
+
+.bookings-link-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.bookings-link-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(245, 166, 35, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.bookings-link-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.bookings-link-sub {
+    font-size: 13px;
+    color: #8a9bb0;
+}
+
+.bookings-link-arrow {
+    font-size: 20px;
+    color: #8a9bb0;
+}
+
+/* ── Form grid ── */
+.account-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+}
+
+.account-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.account-label {
+    font-size: 12px;
+    color: #8a9bb0;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.account-input {
+    background: #0f2035;
+    border: 1px solid #1e3148;
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 10px 14px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.account-input:focus {
+    border-color: #f5a623;
+}
+
+/* ── Buttons ── */
+.account-btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+
+.account-btn-primary {
+    background: #f5a623;
+    color: #0d1b2a;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.account-btn-primary:hover {
+    background: #e09510;
+}
+
+.account-btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.account-btn-ghost {
+    background: transparent;
+    color: #8a9bb0;
+    border: 1px solid #1e3148;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.account-btn-ghost:hover {
+    border-color: #8a9bb0;
+}
+
+/* ── Toast messages ── */
+.account-toast {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 14px;
+    border: 1px solid;
+}
+
+.account-toast.success {
+    background: rgba(61, 191, 126, 0.15);
+    color: #3dbf7e;
+    border-color: #3dbf7e;
+}
+
+.account-toast.error {
+    background: rgba(224, 82, 82, 0.15);
+    color: #e05252;
+    border-color: #e05252;
+}
+
+/* ── Loading state ── */
+.account-loading {
+    min-height: 100vh;
+    background: #0d1b2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8a9bb0;
+    font-size: 15px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+    .account-nav {
+        padding: 0 20px;
+    }
+
+    .account-hero {
+        padding: 24px 20px;
+        gap: 16px;
+    }
+
+    .account-avatar {
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+    }
+
+    .account-hero-name {
+        font-size: 20px;
+    }
+
+    .account-body {
+        padding: 20px 16px 0;
+    }
+
+    .account-card {
+        padding: 20px 18px;
+    }
+
+    .account-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .account-field.full-width {
+        grid-column: 1;
+    }
+
+    .account-bookings-link {
+        padding: 16px 18px;
+    }
+}

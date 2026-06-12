@@ -98,7 +98,7 @@ export default function Navbar({ onNavigate, currentPage }) {
                 <div className="navbar-dropdown">
                   <button
                     className="navbar-dropdown-item"
-                    onClick={() => { setMenuOpen(false); onNavigate?.("account"); }}
+                    onClick={() => { setMenuOpen(false); navigate("/my-account"); }}
                   >
                     My Account
                   </button>

@@ -28,6 +28,8 @@ import Commercial from "./pages/Commercial";
 import Contact from "./pages/Contact";
 import MyBookings from "./pages/MyBookings";
 import CustomerProfile from "./pages/CustomerProfile";
+import MyAccount from "./pages/MyAccount";
+
 function App() {
   return (
     <BrowserRouter>
@@ -43,6 +45,7 @@ function App() {
         <Route path="/signup"          element={<SignUpPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/my-bookings"     element={<MyBookings />} />
+        <Route path="/my-account"      element={<MyAccount />} />
         <Route path="/customers/:id" element={<ProtectedAdminRoute><CustomerProfile /></ProtectedAdminRoute>} />
         {/* ── Admin login (public) ── */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
