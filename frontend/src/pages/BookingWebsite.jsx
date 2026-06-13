@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import WebsiteNavbar from "../components/WebsiteNavbar";
+import PromoBanner from "../components/PromoBanner";
 import Footer from "../components/Footer";
 import api from "../services/api";
 import {
@@ -296,6 +297,7 @@ const BookingWebsite = () => {
     return (
       <>
         <WebsiteNavbar />
+        <PromoBanner />
         <div className="booking-page">
           <div
             className="booking-card"
@@ -374,6 +376,7 @@ const BookingWebsite = () => {
     return (
       <>
         <WebsiteNavbar />
+        <PromoBanner />
         <div className="booking-page">
           <div
             className="booking-wrapper"
@@ -451,7 +454,7 @@ const BookingWebsite = () => {
   return (
     <>
       <WebsiteNavbar />
-
+      <PromoBanner />
       <div className="booking-page">
         <div className="booking-wrapper">
           {/* LEFT SIDE */}

@@ -109,6 +109,10 @@ class _CursorProxy:
     def execute(self, query, args=None):
         try:
             _persistent_cursor.execute(query, args)
+        except mysql.connector.errors.InternalError:
+            # Unread result found — reset the cursor and retry
+            _reconnect()
+            _persistent_cursor.execute(query, args)
         except (
             mysql.connector.errors.OperationalError,
             mysql.connector.errors.DatabaseError,

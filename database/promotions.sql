@@ -9,3 +9,5 @@ CREATE TABLE promotions (
     end_date DATE,
     active BOOLEAN DEFAULT TRUE
 );
+
+DESCRIBE promotions;

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
@@ -41,6 +41,11 @@ CORS(app, resources={r"/*": {"origins": [
 
 app.config["JWT_SECRET_KEY"] = "skipbin_super_secret_key_2026_project_12345"
 jwt = JWTManager(app)
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    print(f"Unhandled error: {e}")
+    return jsonify({"error": "Internal server error"}), 500
 
 @app.route("/")
 def home():

@@ -1,78 +1,68 @@
 from flask import Blueprint, jsonify, request
-import database.db as db
+from database.db import get_pool_connection
+
 bin_bp = Blueprint("bin", __name__)
+
 
 @bin_bp.route("/bins", methods=["GET"])
 def get_bins():
-    db.ensure_connection()
-    db.cursor.execute("SELECT * FROM bin_types")
-    bins = db.cursor.fetchall()
-
-    return jsonify(bins)
+    conn, cursor = get_pool_connection()
+    try:
+        cursor.execute("SELECT * FROM bin_types")
+        return jsonify(cursor.fetchall())
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @bin_bp.route("/bins", methods=["POST"])
 def add_bin():
-    db.ensure_connection()
     data = request.json
-
-    db.cursor.execute(
-        """
-        INSERT INTO bin_types(size, base_price)
-        VALUES(%s,%s)
-        """,
-        (
-            data["size"],
-            data["base_price"]
+    conn, cursor = get_pool_connection()
+    try:
+        cursor.execute(
+            "INSERT INTO bin_types (size, base_price) VALUES (%s, %s)",
+            (data["size"], data["base_price"]),
         )
-    )
-
-    db.conn.commit()
-
-    return jsonify({
-        "message":"Bin added"
-    })
+        conn.commit()
+        return jsonify({"message": "Bin added"})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @bin_bp.route("/bins/<int:id>", methods=["PUT"])
 def update_bin(id):
-    db.ensure_connection()
     data = request.json
-
-    db.cursor.execute(
-        """
-        UPDATE bin_types
-        SET size=%s,
-        base_price=%s
-        WHERE bin_id=%s
-        """,
-        (
-            data["size"],
-            data["base_price"],
-            id
+    conn, cursor = get_pool_connection()
+    try:
+        cursor.execute(
+            "UPDATE bin_types SET size=%s, base_price=%s WHERE bin_id=%s",
+            (data["size"], data["base_price"], id),
         )
-    )
-
-    db.conn.commit()
-
-    return jsonify({
-        "message":"Bin updated"
-    })
+        conn.commit()
+        return jsonify({"message": "Bin updated"})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @bin_bp.route("/bins/<int:id>", methods=["DELETE"])
 def delete_bin(id):
-    db.ensure_connection()
-    db.cursor.execute(
-        """
-        DELETE FROM bin_types
-        WHERE bin_id=%s
-        """,
-        (id,)
-    )
-
-    db.conn.commit()
-
-    return jsonify({
-        "message":"Bin deleted"
-    })
+    conn, cursor = get_pool_connection()
+    try:
+        cursor.execute("DELETE FROM bin_types WHERE bin_id=%s", (id,))
+        conn.commit()
+        return jsonify({"message": "Bin deleted"})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
