@@ -652,3 +652,63 @@ scale(1);
     align-items:center;
     display:flex;
 }
+
+
+.quote-details-card{
+  background:#fff;
+  border-radius:20px;
+  padding:30px;
+  margin-top:25px;
+  box-shadow:0 8px 25px rgba(0,0,0,.08);
+}
+
+.quote-details-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.quote-details-header h2{
+  margin:0;
+  color:#0f172a;
+}
+
+.quote-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:20px;
+}
+
+.quote-item{
+  background:#f8fafc;
+  padding:16px;
+  border-radius:12px;
+}
+
+.quote-item label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  text-transform:uppercase;
+  color:#64748b;
+  margin-bottom:6px;
+}
+
+.quote-item span{
+  font-size:16px;
+  color:#0f172a;
+  font-weight:500;
+}
+
+.requirements-box{
+  margin-top:25px;
+  padding:20px;
+  border-radius:12px;
+  background:#f8fafc;
+}
+
+.requirements-box h3{
+  margin-top:0;
+  margin-bottom:10px;
+}

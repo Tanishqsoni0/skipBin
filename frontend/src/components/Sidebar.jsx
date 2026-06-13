@@ -34,10 +34,12 @@ const Sidebar = () => {
         Distance Charges
       </Link>
 
+      <Link to="/admin/commercial">Commercial Quotes</Link>
+
       <Link to="/promotions">
         Promotions
       </Link>
-
+    
       <Link to="/reports">
         Reports
       </Link>

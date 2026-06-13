@@ -22,6 +22,7 @@ body{
   display:flex;
   flex-direction:column;
   gap:20px;
+  height:auto;
 }
 
 .logo{
@@ -518,38 +519,6 @@ button{
   border-radius:10px;
 }
 
-.commercial-page,
-.contact-page{
-  min-height:80vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:60px 20px;
-  background:#f8fafc;
-}
-
-.commercial-card,
-.contact-card{
-  max-width:900px;
-  width:100%;
-  background:white;
-  padding:40px;
-  border-radius:24px;
-  box-shadow:
-  0 10px 40px rgba(0,0,0,.08);
-}
-
-.commercial-card ul{
-  padding-left:20px;
-}
-
-.contact-card textarea{
-  width:100%;
-  min-height:120px;
-  padding:12px;
-  border:1px solid #ddd;
-  border-radius:10px;
-}
 
 .stats-section{
   display:grid;
@@ -669,3 +638,4 @@ button{
   margin-bottom: 1rem;
   font-size: 14px;
 }
+

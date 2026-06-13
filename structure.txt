@@ -10,6 +10,7 @@
             bin_routes.py
             booking_routes.py
             calendar_routes.py
+            commercial_quote_routes.py
             contact_routes.py
             customer_routes.py
             dashboard_routes.py
@@ -50,8 +51,10 @@
             App.css
             App.jsx
             App.test.js
+            MyAccount.css
             auth.css
             booking.css
+            commercial.css
         [components]
                 BinCard.jsx
                 BookingTable.jsx
@@ -69,6 +72,7 @@
                 Testimonials.jsx
                 WebsiteNavbar.jsx
                 WhyChooseUs.jsx
+            contact.css
             dashboard.css
             home.css
             index.css
@@ -76,12 +80,14 @@
         [layouts]
                 DashboardLayout.jsx
         [pages]
+                AdminCommercial.jsx
                 AdminLoginPage.jsx
                 Bins.jsx
                 BookingWebsite.jsx
                 Bookings.jsx
                 Calendar.jsx
                 Commercial.jsx
+                CommercialQuotes.jsx
                 Contact.jsx
                 CustomerProfile.jsx
                 Customers.jsx
@@ -91,6 +97,7 @@
                 HirePricing.jsx
                 Home.jsx
                 LoginPage.jsx
+                MyAccount.jsx
                 MyBookings.jsx
                 Promotions.jsx
                 Reports.jsx

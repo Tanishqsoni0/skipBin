@@ -18,6 +18,7 @@ import Bins from "./pages/Bins";
 import WasteTypes from "./pages/WasteTypes";
 import HirePricing from "./pages/HirePricing";
 import DistanceCharges from "./pages/DistanceCharges";
+import AdminCommercial from "./pages/AdminCommercial";
 import Promotions from "./pages/Promotions";
 import Reports from "./pages/Reports";
 
@@ -25,6 +26,7 @@ import Reports from "./pages/Reports";
 import Home from "./pages/Home";
 import BookingWebsite from "./pages/BookingWebsite";
 import Commercial from "./pages/Commercial";
+import CommercialQuotes from "./pages/CommercialQuotes";
 import Contact from "./pages/Contact";
 import MyBookings from "./pages/MyBookings";
 import CustomerProfile from "./pages/CustomerProfile";
@@ -40,6 +42,7 @@ function App() {
         <Route path="/home"            element={<Home />} />
         <Route path="/booking"         element={<BookingWebsite />} />
         <Route path="/commercial"      element={<Commercial />} />
+        <Route path="/commercial-quotes" element={<CommercialQuotes />} />
         <Route path="/contact"         element={<Contact />} />
         <Route path="/loginpage"       element={<LoginPage />} />
         <Route path="/signup"          element={<SignUpPage />} />
@@ -86,6 +89,10 @@ function App() {
 
         <Route path="/distance-charges" element={
           <ProtectedAdminRoute><DistanceCharges /></ProtectedAdminRoute>
+        } />
+
+        <Route path="/admin/commercial" element={
+          <ProtectedAdminRoute><AdminCommercial /></ProtectedAdminRoute>
         } />
 
         <Route path="/reports" element={

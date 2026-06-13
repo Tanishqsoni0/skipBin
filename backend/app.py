@@ -20,7 +20,8 @@ from routes.admin_auth_routes import admin_auth_bp
 from routes.contact_routes import contact_bp
 from routes.distance_routes import distance_bp
 from routes.calendar_routes import calendar_bp
-from routes.paypal_routes import paypal_bp          
+from routes.paypal_routes import paypal_bp   
+from routes.commercial_quote_routes import commercial_quote_bp       
 
 app = Flask(__name__)
 
@@ -58,7 +59,12 @@ app.register_blueprint(admin_auth_bp)
 app.register_blueprint(contact_bp)
 app.register_blueprint(distance_bp)
 app.register_blueprint(calendar_bp)
-app.register_blueprint(paypal_bp)                   # ← NEW
+app.register_blueprint(paypal_bp)                  
+app.register_blueprint(commercial_quote_bp)        
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )

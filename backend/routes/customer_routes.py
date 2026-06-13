@@ -1,71 +1,80 @@
 from flask import Blueprint, request, jsonify
+from database.db import get_pool_connection
 import database.db as db
-
 customer_bp = Blueprint("customer", __name__)
 
 # Get all customers
 @customer_bp.route("/customers", methods=["GET"])
 def get_customers():
-    db.ensure_connection()
+    conn, cursor = get_pool_connection()
+    try:
 
-    query = """
-    SELECT
+        query = """
+        SELECT
 
-        c.customer_id,
+            c.customer_id,
 
-        CONCAT(
-            c.first_name,
-            ' ',
-            c.last_name
-        ) AS full_name,
+            CONCAT(
+                c.first_name,
+                ' ',
+                c.last_name
+            ) AS full_name,
 
-        c.mobile,
+            c.mobile,
 
-        c.email,
+            c.email,
 
-        c.address,
+            c.address,
 
-        c.loyalty_count,
+            c.loyalty_count,
 
-        COUNT(
-            b.booking_id
-        ) AS total_bookings,
+            COUNT(
+                b.booking_id
+            ) AS total_bookings,
 
-        COALESCE(
-            SUM(
-                b.total_amount
-            ),
-            0
-        ) AS total_spend
+            COALESCE(
+                SUM(
+                    b.total_amount
+                ),
+                0
+            ) AS total_spend
 
-    FROM customers c
+        FROM customers c
 
-    LEFT JOIN bookings b
-        ON c.customer_id = b.customer_id
+        LEFT JOIN bookings b
+            ON c.customer_id = b.customer_id
 
-    GROUP BY
-        c.customer_id
+        GROUP BY
+            c.customer_id
 
-    ORDER BY
-        c.customer_id DESC
-    """
+        ORDER BY
+            c.customer_id DESC
+        """
 
-    db.cursor.execute(query)
+        cursor.execute(query)
 
-    customers = db.cursor.fetchall()
+        customers = cursor.fetchall()
 
-    for c in customers:
+        for c in customers:
 
-        count = c["loyalty_count"]
+            count = c["loyalty_count"]
 
-        remaining = 6 - (count % 7)
+            remaining = 6 - (count % 7)
 
-        if remaining < 0:
-            remaining = 6
+            if remaining < 0:
+                remaining = 6
 
-        c["bins_until_reward"] = remaining
+            c["bins_until_reward"] = remaining
 
-    return jsonify(customers)
+        return jsonify(customers)
+    except Exception as e:
+        print("ERROR:", repr(e))
+        return jsonify({"message":"Error fetching customers"}),500
+    
+    finally:
+
+        cursor.close()
+        conn.close()
 
 # Get customer by id
 @customer_bp.route("/customers/<int:id>", methods=["GET"])

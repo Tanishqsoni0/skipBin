@@ -35,20 +35,36 @@ const [editForm,setEditForm]=useState({
   status:""
 });
 
+useEffect(() => {
 
-  useEffect(() => {
-    fetchBookings();
-    loadCustomers();
-  }, []);
-  const loadCustomers = async() => {
+  const load = async () => {
 
-  const res = await api.get(
-    "/customers"
-  );
+    await loadCustomers();
 
-  setCustomers(
-    res.data
-  );
+    await fetchBookings();
+
+  };
+
+  load();
+
+}, []);
+const loadCustomers = async() => {
+
+  try{
+
+    const res = await api.get("/customers");
+
+    setCustomers(res.data);
+
+  }
+  catch(err){
+
+    console.log(
+      "CUSTOMER ERROR",
+      err.response?.data
+    );
+
+  }
 
 };
   const fetchBookings =

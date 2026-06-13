@@ -8,28 +8,34 @@ booking_bp = Blueprint("booking", __name__)
 
 @booking_bp.route("/bookings", methods=["GET"])
 def get_bookings():
-    query = """
-    SELECT
-        b.booking_id,
-        CONCAT(c.first_name, ' ', c.last_name) AS full_name,
-        bt.size,
-        wt.waste_name,
-        b.delivery_date,
-        b.collection_date,
-        b.status,
-        b.total_amount
-    FROM bookings b
-    JOIN customers c  ON b.customer_id = c.customer_id
-    JOIN bin_types bt ON b.bin_id      = bt.bin_id
-    JOIN waste_types wt ON b.waste_id  = wt.waste_id
-    ORDER BY b.booking_id DESC
-    """
-    db.cursor.execute(query)
-    return jsonify(db.cursor.fetchall())
+    try:
+        db.ensure_connection()
+        query = """
+        SELECT
+            b.booking_id,
+            CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+            bt.size,
+            wt.waste_name,
+            b.delivery_date,
+            b.collection_date,
+            b.status,
+            b.total_amount
+        FROM bookings b
+        JOIN customers c  ON b.customer_id = c.customer_id
+        JOIN bin_types bt ON b.bin_id      = bt.bin_id
+        JOIN waste_types wt ON b.waste_id  = wt.waste_id
+        ORDER BY b.booking_id DESC
+        """
+        db.cursor.execute(query)
+        return jsonify(db.cursor.fetchall())
+    except Exception as e:
+        print("Error fetching bookings:", e)
+        return jsonify({"message":"Error fetching bookings"}),500
 
 
 @booking_bp.route("/bookings", methods=["POST"])
 def create_booking():
+    db.ensure_connection()
     data = request.json
 
     customer_id      = data["customer_id"]
@@ -84,6 +90,7 @@ def create_booking():
 
 @booking_bp.route("/calculate-price", methods=["POST"])
 def get_price():
+    db.ensure_connection()
     data        = request.json
     customer_id = data.get("customer_id", 0)
 
@@ -100,6 +107,7 @@ def get_price():
 
 @booking_bp.route("/my-bookings/<int:customer_id>", methods=["GET"])
 def my_bookings(customer_id):
+    db.ensure_connection()
     db.cursor.execute(
         """
         SELECT
@@ -119,6 +127,7 @@ def my_bookings(customer_id):
 
 @booking_bp.route("/collections/tomorrow", methods=["GET"])
 def collections_tomorrow():
+    db.ensure_connection()
     tomorrow = datetime.now().date() + timedelta(days=1)
     db.cursor.execute(
         """
@@ -140,6 +149,7 @@ def collections_tomorrow():
 
 @booking_bp.route("/bookings/<int:id>/status", methods=["PUT"])
 def update_booking_status(id):
+    db.ensure_connection()
     data = request.json
     db.cursor.execute(
         "UPDATE bookings SET status = %s WHERE booking_id = %s",
