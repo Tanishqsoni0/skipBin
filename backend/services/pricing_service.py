@@ -79,11 +79,11 @@ def calculate_price(
 
         if customer_id:
             cursor.execute(
-                "SELECT loyalty_count FROM customers WHERE customer_id = %s",
+                "SELECT COUNT(booking_id) AS real_count FROM bookings WHERE customer_id = %s",
                 (customer_id,)
             )
-            customer      = cursor.fetchone()
-            loyalty_count = customer["loyalty_count"] if customer else 0
+            result        = cursor.fetchone()
+            loyalty_count = result["real_count"] if result else 0
 
         if (loyalty_count + 1) % 7 == 0:
             free_bin         = True

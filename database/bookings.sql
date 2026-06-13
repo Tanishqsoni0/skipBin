@@ -46,3 +46,5 @@ ADD COLUMN promo_id INT NULL;
 
 ALTER TABLE bookings
 ADD COLUMN loyalty_discount DECIMAL(10,2) DEFAULT 0;
+
+TRUNCATE TABLE bookings;

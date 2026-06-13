@@ -16,6 +16,17 @@ DB_CONFIG = {
     "ssl_disabled": True,
 }
 
+DB_CONFIG_READ = {
+    "host":       os.getenv("DB_HOST"),
+    "user":       os.getenv("DB_USER"),
+    "password":   os.getenv("DB_PASSWORD"),
+    "database":   os.getenv("DB_NAME"),
+    "charset":    "utf8mb4",
+    "collation":  "utf8mb4_unicode_ci",
+    "autocommit": True,
+    "ssl_disabled": True,
+}
+
 # ── Connection pool (ONLY for get_db() and get_pool_connection()) ─────────────
 db_pool = pooling.MySQLConnectionPool(
     pool_name="skipbins_pool",
@@ -46,7 +57,7 @@ def _make_persistent():
             _persistent_conn.close()
         except Exception:
             pass
-    _persistent_conn   = mysql.connector.connect(**DB_CONFIG)
+    _persistent_conn   = mysql.connector.connect(**DB_CONFIG_READ)
     _persistent_cursor = _persistent_conn.cursor(dictionary=True, buffered=True)
 
 _make_persistent()

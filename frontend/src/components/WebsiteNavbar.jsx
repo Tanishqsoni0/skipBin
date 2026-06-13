@@ -1,6 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { fetchMe, logout, getStoredCustomer, isLoggedIn } from "../services/authService";
+import {
+  fetchMe,
+  logout,
+  getStoredCustomer,
+  isLoggedIn,
+  invalidateMeCache,
+} from "../services/authService";
 
 export default function Navbar({ onNavigate, currentPage }) {
   const [customer, setCustomer] = useState(null);
@@ -10,22 +16,41 @@ export default function Navbar({ onNavigate, currentPage }) {
 
   // On mount — if a token exists fetch fresh profile from server
   useEffect(() => {
-    if (isLoggedIn()) {
-      // Show cached customer immediately while the request runs
-      setCustomer(getStoredCustomer());
+    if (!isLoggedIn()) return;
 
+    // Show cached data immediately
+    setCustomer(getStoredCustomer());
+
+    const refresh = () => {
+      invalidateMeCache();
       fetchMe().then((result) => {
         if (result.success) {
           setCustomer(result.customer);
           setLoyalty(result.loyalty);
         } else {
-          // Token likely expired — clear and show logged-out state
           logout();
           setCustomer(null);
           setLoyalty(null);
         }
       });
-    }
+    };
+
+    // Fetch fresh on mount
+    refresh();
+
+    // Re-fetch every 60 seconds
+    const interval = setInterval(refresh, 60000);
+
+    // Re-fetch when user comes back to the tab
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   async function handleLogout() {

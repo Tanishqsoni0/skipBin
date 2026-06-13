@@ -27,7 +27,7 @@ const BookingWebsite = () => {
   const [customer, setCustomer] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
- 
+  const [loyalty, setLoyalty] = useState(null);
   const [paypalOrderId, setPaypalOrderId] = useState(null);
   const [bookingResult, setBookingResult] = useState(null);
   const [bookingError, setBookingError] = useState("");
@@ -69,6 +69,7 @@ const BookingWebsite = () => {
       if (result.success) {
         const c = result.customer;
         setCustomer(c);
+        setLoyalty(result.loyalty);
         setForm((prev) => ({
           ...prev,
           customer_name: `${c.first_name} ${c.last_name}`.trim(),
@@ -229,7 +230,10 @@ const BookingWebsite = () => {
               setBookingResult(result);
               invalidateMeCache();
               fetchMe().then((r) => {
-                if (r.success) setCustomer(r.customer);
+                if (r.success){ 
+                  setCustomer(r.customer);
+                  setLoyalty(r.loyalty);
+                }
               });
               setStep("success");
             } else {
@@ -548,30 +552,18 @@ const BookingWebsite = () => {
 
           {/* RIGHT SIDE */}
           <div className="summary-card">
-            {
-pricing?.free_bin && (
-
-<div className="success-banner">
-🎉 Loyalty Reward Applied
-
-<br/>
-
-You are qualified for a FREE bin hire.
-<br/>
-Only waste, delivery and extension charges apply.
-
-</div>
-)}
-{
-  !pricing?.free_bin && (
-
-<div className="promo-banner">
-
-  🎁 Every 7th Bin Hire FREE
-
-</div>
-  )
-}
+            {pricing?.free_bin && (
+              <div className="success-banner">
+                🎉 Loyalty Reward Applied
+                <br />
+                You are qualified for a FREE bin hire.
+                <br />
+                Only waste, delivery and extension charges apply.
+              </div>
+            )}
+            {!pricing?.free_bin && (
+              <div className="promo-banner">🎁 Every 7th Bin Hire FREE</div>
+            )}
 
             <h2>ORDER SUMMARY</h2>
             <div className="summary-row">
@@ -611,15 +603,19 @@ Only waste, delivery and extension charges apply.
               {submitting ? "Processing..." : "COMPLETE BOOKING"}
             </button>
 
-            {customer && (
+            {loyalty && (
               <div className="loyalty-card">
                 <h3>🎁 Loyalty Rewards</h3>
-                <p>{customer.loyalty_count || 0} / 7 Hires</p>
+                <p>
+                  {loyalty.progress} / 7 — {loyalty.bins_until_free} more bin
+                  {loyalty.bins_until_free !== 1 ? "s" : ""} until your next
+                  free hire!
+                </p>
                 <div className="loyalty-progress">
                   <div
                     className="loyalty-fill"
                     style={{
-                      width: `${((customer.loyalty_count || 0) % 7) / 7 * 100}%`,
+                      width: `${(loyalty.progress / 7) * 100}%`,
                     }}
                   />
                 </div>

@@ -197,20 +197,31 @@ def me():
     conn = get_db()
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
+        cursor.execute(
+            """
+            SELECT c.*,
+                COUNT(b.booking_id) AS real_loyalty_count
+            FROM customers c
+            LEFT JOIN bookings b ON b.customer_id = c.customer_id
+            WHERE c.customer_id = %s
+            GROUP BY c.customer_id
+            """,
+            (customer_id,)
+        )
         customer = cursor.fetchone()
         if not customer:
             return make_error("Customer not found", 404)
 
-        loyalty_progress = customer["loyalty_count"] % 7
+        real_count       = customer["real_loyalty_count"] or 0
+        loyalty_progress = real_count % 7
         bins_until_free  = 7 - loyalty_progress if loyalty_progress > 0 else 7
-        next_free_at     = customer["loyalty_count"] + bins_until_free
+        next_free_at     = real_count + bins_until_free
 
         return make_ok(
             {
                 "customer": safe_customer(customer),
                 "loyalty": {
-                    "total_hires": customer["loyalty_count"],
+                    "total_hires": real_count,
                     "progress": loyalty_progress,
                     "bins_until_free": bins_until_free,
                     "next_free_at": next_free_at,
