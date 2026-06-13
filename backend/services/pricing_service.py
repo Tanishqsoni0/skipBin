@@ -74,18 +74,32 @@ def calculate_price(
 
         # Loyalty check
         loyalty_count    = 0
+        loyalty_override = "none"
         free_bin         = False
         loyalty_discount = 0
 
         if customer_id:
             cursor.execute(
-                "SELECT COUNT(booking_id) AS real_count FROM bookings WHERE customer_id = %s",
+                """
+                SELECT COUNT(b.booking_id) AS real_count, c.loyalty_override
+                FROM customers c
+                LEFT JOIN bookings b ON b.customer_id = c.customer_id
+                WHERE c.customer_id = %s
+                GROUP BY c.customer_id
+                """,
                 (customer_id,)
             )
-            result        = cursor.fetchone()
-            loyalty_count = result["real_count"] if result else 0
+            result           = cursor.fetchone()
+            loyalty_count    = result["real_count"] if result else 0
+            loyalty_override = result["loyalty_override"] if result else "none"
 
-        if (loyalty_count + 1) % 7 == 0:
+        if loyalty_override == "approved":
+            free_bin         = True
+            loyalty_discount = base_price
+            base_price       = 0
+        elif loyalty_override == "declined":
+            free_bin = False
+        elif (loyalty_count + 1) % 7 == 0:
             free_bin         = True
             loyalty_discount = base_price
             base_price       = 0

@@ -610,7 +610,7 @@ const BookingWebsite = () => {
               <div className="loyalty-card">
                 <h3>🎁 Loyalty Rewards</h3>
                 <p>
-                  {loyalty.progress} / 7 — {loyalty.bins_until_free} more bin
+                  {loyalty.progress} / 6 — {loyalty.bins_until_free} more bin
                   {loyalty.bins_until_free !== 1 ? "s" : ""} until your next
                   free hire!
                 </p>
@@ -618,7 +618,7 @@ const BookingWebsite = () => {
                   <div
                     className="loyalty-fill"
                     style={{
-                      width: `${(loyalty.progress / 7) * 100}%`,
+                      width: `${((loyalty.progress % 7) / 6) * 100}%`,
                     }}
                   />
                 </div>

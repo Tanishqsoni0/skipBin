@@ -151,14 +151,17 @@ export default function MyAccount() {
             <span className="loyalty-value">{loyalty?.total_hires ?? 0}</span>
           </div>
           <div className="loyalty-track">
-            <div className="loyalty-fill" style={{ width: `${loyaltyPct}%` }} />
+            <div
+              className="loyalty-fill"
+              style={{ width: `${((loyalty.progress % 7) / 6) * 100}%` }}
+            />
           </div>
           <div className="loyalty-row">
             <span className="loyalty-note">
-              {loyalty?.progress ?? 0} / 7 toward your next free bin
+              {loyalty?.progress ?? 0} / 6 toward your next free bin
             </span>
             <span className="loyalty-value amber">
-              {loyalty?.bins_until_free ?? 7} more to go
+              {loyalty?.bins_until_free ?? 6} more to go
             </span>
           </div>
           {loyalty?.bins_until_free === 1 && (

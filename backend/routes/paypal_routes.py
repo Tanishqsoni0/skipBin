@@ -163,6 +163,18 @@ def capture_payment():
             (pending["customer_id"],)
         )
 
+        # Auto-clear loyalty override if it was used (approved or declined)
+        # so it doesn't carry over to the next booking
+        cursor.execute(
+            """
+            UPDATE customers
+            SET loyalty_override = 'none'
+            WHERE customer_id = %s
+            AND loyalty_override != 'none'
+            """,
+            (pending["customer_id"],)
+        )
+
         # Clean up pending booking
         cursor.execute(
             "DELETE FROM pending_bookings WHERE paypal_order_id = %s",

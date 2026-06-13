@@ -55,3 +55,7 @@ SHOW COLUMNS FROM customers;
 
 ALTER TABLE customers
 ADD COLUMN total_bins_hired INT DEFAULT 0;
+
+-- Run this in your MySQL database
+ALTER TABLE customers
+ADD COLUMN loyalty_override ENUM('none', 'approved', 'declined') NOT NULL DEFAULT 'none' AFTER loyalty_count;

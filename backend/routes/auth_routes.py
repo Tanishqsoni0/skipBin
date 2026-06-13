@@ -214,7 +214,7 @@ def me():
 
         real_count       = customer["real_loyalty_count"] or 0
         loyalty_progress = real_count % 7
-        bins_until_free  = 7 - loyalty_progress if loyalty_progress > 0 else 7
+        bins_until_free  = 6 - loyalty_progress if loyalty_progress > 0 else 7
         next_free_at     = real_count + bins_until_free
 
         return make_ok(

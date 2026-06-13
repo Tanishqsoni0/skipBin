@@ -109,11 +109,11 @@ export default function Navbar({ onNavigate, currentPage }) {
                   <div className="loyalty-pill-bar-wrap">
                     <div
                       className="loyalty-pill-bar"
-                      style={{ width: `${(loyalty.progress / 7) * 100}%` }}
+                      style={{ width: `${((loyalty.progress % 7) / 6) * 100}%` }}
                     />
                   </div>
                   <span className="loyalty-pill-label">
-                    {loyalty.progress}/7
+                    {loyalty.progress}/6
                   </span>
                 </div>
               )}
